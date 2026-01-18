@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/* Print styles for recipe pages */
+@media print {
+  /* Hide navigation and action buttons when printing */
+  nav,
+  button,
+  a[href]:not([href^="#"]):not([href^="javascript:"]) {
+    display: none !important;
+  }
+
+  /* Optimize layout for printing */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Ensure recipe content prints well */
+  .print-optimize {
+    page-break-inside: avoid;
+  }
+
+  /* Hide devtools and other UI elements */
+  [data-tanstack-router-devtools],
+  .no-print {
+    display: none !important;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  img {
+    box-shadow: none !important;
+  }
+}

@@ -1,0 +1,73 @@
+# TanStack Start Project Rules
+
+## Documentation References
+
+Always refer to the official TanStack Start documentation:
+- **Main Docs**: https://tanstack.com/start/latest
+- **Build from Scratch**: https://tanstack.com/start/latest/docs/framework/react/build-from-scratch
+- **Execution Model**: https://tanstack.com/start/latest/docs/framework/react/guide/execution-model
+- **Server Functions**: https://tanstack.com/start/latest/docs/framework/react/guide/server-functions
+- **Code Execution Patterns**: https://tanstack.com/start/latest/docs/framework/react/guide/code-execution-patterns
+- **Environment Functions**: https://tanstack.com/start/latest/docs/framework/react/guide/environment-functions
+
+## Configuration
+
+### Vite Config
+- Reference: https://tanstack.com/start/latest/docs/framework/react/build-from-scratch#update-configuration-files
+
+### Package.json
+- Scripts should use `vite dev` and `vite build` (not custom commands)
+- Reference: https://tanstack.com/start/latest/docs/framework/react/build-from-scratch#update-configuration-files
+
+## File Organization
+
+### Server Functions Pattern
+- **`.functions.ts`** files: Contain `createServerFn()` calls. These can be imported anywhere (client or server). The build system replaces them with RPC stubs in client bundles.
+- **`.server.ts`** files: Contain server-only code (database, file system, environment variables). These should ONLY be imported inside server function handlers, never at the top level of `.functions.ts` files.
+- Use dynamic imports (`await import('./recipes.server')`) inside handlers to load server-only code
+- Reference: https://tanstack.com/start/latest/docs/framework/react/guide/server-functions
+
+### Execution Model
+- All code is **isomorphic by default** - runs on both server and client unless explicitly constrained
+- Route loaders are isomorphic - they run on both server (SSR) and client (navigation)
+- Use `createServerFn()` for RPC calls that execute only on server
+- Use `createServerOnlyFn()` for utilities that should only run on server (throws if called from client)
+- Use `createClientOnlyFn()` for utilities that should only run on client (throws if called from server)
+- Reference: https://tanstack.com/start/latest/docs/framework/react/guide/execution-model
+
+## Common Patterns
+
+### Server Functions
+```typescript
+// recipes.functions.ts - Safe to import anywhere
+import { createServerFn } from '@tanstack/react-start'
+
+export const getRecipes = createServerFn({ method: 'GET' }).handler(async () => {
+  // Dynamic import of server-only code inside handler
+  const recipeServer = await import('./recipes.server')
+  return recipeServer.getAllRecipes()
+})
+```
+
+### Root Route
+- Must use `createRootRoute` from `@tanstack/react-router`
+- Must include `<HeadContent />` and `<Scripts />` in the HTML structure
+- Reference: https://tanstack.com/start/latest/docs/framework/react/build-from-scratch#the-root-of-your-application
+
+### Router Setup
+- Create `src/router.tsx` with `getRouter()` function
+- Use `createRouter` with `routeTree` from `./routeTree.gen`
+- Reference: https://tanstack.com/start/latest/docs/framework/react/build-from-scratch#the-router-configuration
+
+## Build System
+
+- TanStack Start uses Vite with the `tanstackStart()` plugin
+- The plugin automatically handles server function transformation
+- Server functions are replaced with RPC stubs in client bundles
+- `.server.ts` files are automatically excluded from client bundles when properly structured
+- Reference: https://tanstack.com/start/latest/docs/framework/react/build-from-scratch
+
+## When in Doubt
+
+Always check the official TanStack Start documentation first:
+https://tanstack.com/start/latest/docs/framework/react

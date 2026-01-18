@@ -1,0 +1,62 @@
+{
+  "name": "recipe-book",
+  "version": "1.0.0",
+  "main": "index.js",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "vercel": "/Users/stijnjanmaat/Library/pnpm/vercel",
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down",
+    "db:logs": "docker-compose logs -f postgres",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.18",
+    "@tanstack/react-router": "^1.150.0",
+    "@tanstack/react-start": "^1.150.0",
+    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/start": "^1.120.20",
+    "@vercel/blob": "^2.0.0",
+    "@vercel/postgres": "^0.10.0",
+    "ai": "^6.0.39",
+    "drizzle-orm": "^0.45.1",
+    "i18next": "^25.7.4",
+    "openai": "^6.16.0",
+    "postgres": "^3.4.8",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-dropzone": "^14.3.8",
+    "react-i18next": "^16.5.3",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-router-devtools": "^1.150.0",
+    "@tanstack/router-plugin": "^1.150.0",
+    "@types/node": "^25.0.9",
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "buffer": "^6.0.3",
+    "dotenv": "^17.2.3",
+    "drizzle-kit": "^0.31.8",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.1",
+    "vite-tsconfig-paths": "^6.0.4"
+  }
+}
