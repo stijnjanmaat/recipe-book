@@ -4,6 +4,7 @@ import { useRecipe, useDeleteRecipe } from '~/hooks/useRecipes'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
+import { interpolateIngredients } from '~/lib/utils/ingredient-interpolation'
 
 export const Route = createFileRoute('/{-$locale}/recipes/$recipeId/')({
   component: RecipeDetail,
@@ -149,7 +150,19 @@ function RecipeDetail() {
                         {instruction.step}
                       </span>
                       <div className="flex-1">
-                        <p className="text-foreground">{instruction.instruction}</p>
+                        <p className="text-foreground">
+                          {interpolateIngredients(
+                            instruction.instruction,
+                            (recipe.ingredients || []).map((ing) => ({
+                              name: ing.name,
+                              identifier: ing.identifier || undefined,
+                              amount: ing.amount || undefined,
+                              unit: ing.unit || undefined,
+                              notes: ing.notes || undefined,
+                              order: ing.order ?? 0,
+                            }))
+                          )}
+                        </p>
                       </div>
                     </li>
                   ))}

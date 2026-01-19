@@ -3,6 +3,7 @@ import { z } from 'zod'
 // Validation schemas
 export const IngredientSchema = z.object({
   name: z.string().min(1),
+  identifier: z.string().optional(), // Unique identifier for interpolation (e.g., "eggWhite", "flour")
   amount: z.string().optional(),
   unit: z.string().optional(),
   notes: z.string().optional(),

@@ -13,7 +13,14 @@
     "print": "Print",
     "export": "Export",
     "minutes": "minutes",
-    "unexpectedError": "An unexpected error occurred"
+    "unexpectedError": "An unexpected error occurred",
+    "name": "Name",
+    "amount": "Amount",
+    "unit": "Unit",
+    "notes": "Notes",
+    "instruction": "Instruction",
+    "imageUrl": "Image URL",
+    "identifier": "ID"
   },
   "nav": {
     "appName": "Recipe Book",

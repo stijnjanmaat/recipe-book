@@ -75,16 +75,17 @@ export async function createRecipe(data: z.infer<typeof CreateRecipeSchema>) {
 
   // Insert ingredients if provided
   if (data.ingredients && data.ingredients.length > 0) {
-    await db.insert(ingredients).values(
-      data.ingredients.map((ing) => ({
-        recipeId,
-        name: ing.name,
-        amount: ing.amount,
-        unit: ing.unit,
-        notes: ing.notes,
-        order: ing.order ?? 0,
-      }))
-    )
+      await db.insert(ingredients).values(
+        data.ingredients.map((ing) => ({
+          recipeId,
+          name: ing.name,
+          identifier: ing.identifier,
+          amount: ing.amount,
+          unit: ing.unit,
+          notes: ing.notes,
+          order: ing.order ?? 0,
+        }))
+      )
   }
 
   // Insert instructions if provided
@@ -147,6 +148,7 @@ export async function updateRecipe(recipeId: number, data: z.infer<typeof Update
         data.ingredients.map((ing) => ({
           recipeId,
           name: ing.name,
+          identifier: ing.identifier,
           amount: ing.amount,
           unit: ing.unit,
           notes: ing.notes,

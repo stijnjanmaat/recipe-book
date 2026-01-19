@@ -13,7 +13,14 @@
     "print": "Afdrukken",
     "export": "Exporteren",
     "minutes": "minuten",
-    "unexpectedError": "Er is een onverwachte fout opgetreden"
+    "unexpectedError": "Er is een onverwachte fout opgetreden",
+    "name": "Naam",
+    "amount": "Hoeveelheid",
+    "unit": "Eenheid",
+    "notes": "Opmerkingen",
+    "instruction": "Instructie",
+    "imageUrl": "Afbeelding URL",
+    "identifier": "ID"
   },
   "nav": {
     "appName": "Receptenboek",

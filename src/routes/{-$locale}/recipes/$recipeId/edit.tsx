@@ -44,6 +44,7 @@ function EditRecipe() {
         source: recipe.source || undefined,
         ingredients: recipe.ingredients?.map((ing) => ({
           name: ing.name,
+          identifier: ing.identifier || undefined,
           amount: ing.amount || undefined,
           unit: ing.unit || undefined,
           notes: ing.notes || undefined,
@@ -57,6 +58,58 @@ function EditRecipe() {
       })
     }
   }, [recipe])
+
+  const handleIngredientChange = (index: number, field: 'name' | 'identifier' | 'amount' | 'unit' | 'notes' | 'order', value: any) => {
+    setFormData((prev) => {
+      if (!prev || !prev.ingredients) return null
+      const newIngredients = [...prev.ingredients]
+      newIngredients[index] = { ...newIngredients[index], [field]: value }
+      return { ...prev, ingredients: newIngredients }
+    })
+  }
+
+  const addIngredient = () => {
+    setFormData((prev) => {
+      if (!prev) return null
+      const currentIngredients = prev.ingredients || []
+      const newIngredients = [...currentIngredients, { name: '', order: currentIngredients.length }]
+      return { ...prev, ingredients: newIngredients }
+    })
+  }
+
+  const removeIngredient = (index: number) => {
+    setFormData((prev) => {
+      if (!prev || !prev.ingredients) return null
+      const newIngredients = prev.ingredients.filter((_, i) => i !== index)
+      return { ...prev, ingredients: newIngredients.map((ing, i) => ({ ...ing, order: i })) }
+    })
+  }
+
+  const handleInstructionChange = (index: number, field: 'step' | 'instruction' | 'imageUrl', value: any) => {
+    setFormData((prev) => {
+      if (!prev || !prev.instructions) return null
+      const newInstructions = [...prev.instructions]
+      newInstructions[index] = { ...newInstructions[index], [field]: value }
+      return { ...prev, instructions: newInstructions }
+    })
+  }
+
+  const addInstruction = () => {
+    setFormData((prev) => {
+      if (!prev) return null
+      const currentInstructions = prev.instructions || []
+      const newInstructions = [...currentInstructions, { step: currentInstructions.length + 1, instruction: '' }]
+      return { ...prev, instructions: newInstructions }
+    })
+  }
+
+  const removeInstruction = (index: number) => {
+    setFormData((prev) => {
+      if (!prev || !prev.instructions) return null
+      const newInstructions = prev.instructions.filter((_, i) => i !== index)
+      return { ...prev, instructions: newInstructions.map((inst, i) => ({ ...inst, step: i + 1 })) }
+    })
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -188,6 +241,144 @@ function EditRecipe() {
                   rows={3}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Ingredients */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>{t('recipe.ingredients')}</CardTitle>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addIngredient}
+                >
+                  {t('editRecipe.addIngredient')}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {formData.ingredients && formData.ingredients.length > 0 ? (
+                <div className="space-y-4">
+                  {/* Header row with labels */}
+                  <div className="flex items-center gap-2 pb-2 border-b">
+                    <Label className="flex-1 text-sm font-medium text-muted-foreground">
+                      {t('common.name')}
+                    </Label>
+                    <Label className="w-32 text-sm font-medium text-muted-foreground">
+                      {t('common.identifier')}
+                    </Label>
+                    <Label className="w-24 text-sm font-medium text-muted-foreground">
+                      {t('common.amount')}
+                    </Label>
+                    <Label className="w-24 text-sm font-medium text-muted-foreground">
+                      {t('common.unit')}
+                    </Label>
+                    <Label className="flex-1 text-sm font-medium text-muted-foreground">
+                      {t('common.notes')}
+                    </Label>
+                    <div className="w-11"></div>
+                  </div>
+                  {formData.ingredients.map((ingredient, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input
+                        type="text"
+                        value={ingredient.name}
+                        onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
+                        required
+                        className="flex-1"
+                      />
+                      <Input
+                        type="text"
+                        placeholder="e.g., flour"
+                        value={ingredient.identifier || ''}
+                        onChange={(e) => handleIngredientChange(index, 'identifier', e.target.value || undefined)}
+                        className="w-32"
+                      />
+                      <Input
+                        type="text"
+                        value={ingredient.amount || ''}
+                        onChange={(e) => handleIngredientChange(index, 'amount', e.target.value || undefined)}
+                        className="w-24"
+                      />
+                      <Input
+                        type="text"
+                        value={ingredient.unit || ''}
+                        onChange={(e) => handleIngredientChange(index, 'unit', e.target.value || undefined)}
+                        className="w-24"
+                      />
+                      <Input
+                        type="text"
+                        value={ingredient.notes || ''}
+                        onChange={(e) => handleIngredientChange(index, 'notes', e.target.value || undefined)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeIngredient(index)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-sm">{t('editRecipe.noIngredients')}</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Instructions */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>{t('recipe.instructions')}</CardTitle>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addInstruction}
+                >
+                  {t('editRecipe.addInstruction')}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {formData.instructions && formData.instructions.length > 0 ? (
+                <div className="space-y-4">
+                  {formData.instructions.map((instruction, index) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <span className="shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold mt-1 text-lg">
+                        {instruction.step}
+                      </span>
+                      <Textarea
+                        placeholder={t('common.instruction')}
+                        value={instruction.instruction}
+                        onChange={(e) => handleInstructionChange(index, 'instruction', e.target.value)}
+                        rows={3}
+                        required
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeInstruction(index)}
+                        className="text-destructive hover:text-destructive mt-1"
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-sm">{t('editRecipe.noInstructions')}</p>
+              )}
             </CardContent>
           </Card>
 

@@ -24,6 +24,7 @@ export const ingredients = pgTable('ingredients', {
   id: serial('id').primaryKey(),
   recipeId: integer('recipe_id').references(() => recipes.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
+  identifier: text('identifier'), // Unique identifier for interpolation (e.g., "eggWhite", "flour")
   amount: text('amount'), // Store as text to handle fractions like "1/2"
   unit: text('unit'),
   notes: text('notes'),

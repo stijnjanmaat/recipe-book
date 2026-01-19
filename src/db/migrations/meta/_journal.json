@@ -15,6 +15,13 @@
       "when": 1768681451567,
       "tag": "0001_solid_vengeance",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768851447202,
+      "tag": "0002_warm_jean_grey",
+      "breakpoints": true
     }
   ]
 }
