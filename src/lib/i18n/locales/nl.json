@@ -70,12 +70,18 @@
   "addRecipe": {
     "fromImage": "Recept Toevoegen van Afbeelding",
     "fromUrl": "Recept Toevoegen van URL",
+    "imageDescription": "Upload een afbeelding van een recept om de details automatisch te extraheren",
+    "urlDescription": "Voer een URL in naar een receptwebpagina om de details automatisch te extraheren",
     "dragDrop": "Sleep een afbeelding hierheen of klik om er een te selecteren",
     "dragActive": "Laat de afbeelding hier vallen ...",
     "imageHint": "(bijv. foto van een recept, screenshot)",
+    "imageFormats": "Ondersteunde formaten: PNG, JPG, JPEG, GIF, WEBP",
+    "imageReplace": "Klik om afbeelding te vervangen",
     "urlPlaceholder": "bijv. https://www.allrecipes.com/recipe/...",
     "extracting": "Recept extraheren... Dit kan even duren.",
+    "extractingMoment": "Even geduld terwijl we uw recept verwerken",
     "error": "Fout bij het extraheren van recept.",
+    "errorExtracting": "Er is een fout opgetreden bij het extraheren van het recept. Probeer het opnieuw.",
     "switchToUrl": "Liever toevoegen via een URL?",
     "switchToImage": "Liever toevoegen via een afbeelding?",
     "extractButton": "Recept Extraheren"
@@ -100,6 +106,8 @@
     "saveChanges": "Wijzigingen Opslaan",
     "backToRecipe": "Terug naar Recept",
     "error": "Fout bij het laden van recept",
+    "errorLoading": "Fout bij het laden van recept",
+    "notFound": "Recept niet gevonden",
     "submitError": "Fout bij het bijwerken van recept"
   }
 }

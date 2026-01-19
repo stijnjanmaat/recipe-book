@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate, useParams } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDropzone } from 'react-dropzone'
@@ -11,8 +11,9 @@ export const Route = createFileRoute('/{-$locale}/add/image')({
 function AddRecipeFromImage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const localeContext = Route.useRouteContext()
-  const currentLocale = localeContext?.locale || 'en'
+  // Get locale from URL params (inherited from parent route)
+  const allParams = useParams({ strict: false })
+  const currentLocale = allParams.locale || 'en'
   const [preview, setPreview] = useState<string | null>(null)
   const extractRecipe = useExtractRecipeFromImage()
 
@@ -37,7 +38,7 @@ function AddRecipeFromImage() {
               params: { 
                 recipeId: recipe.id.toString(),
                 locale: currentLocale === 'en' ? undefined : currentLocale
-              } 
+              }
             })
           },
         })

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, Link, useParams } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { useRecipe, useDeleteRecipe } from '~/hooks/useRecipes'
 
@@ -10,8 +10,9 @@ function RecipeDetail() {
   const { t } = useTranslation()
   const params = Route.useParams()
   const recipeId = params.recipeId
-  const localeContext = Route.useRouteContext()
-  const currentLocale = localeContext?.locale || 'en'
+  // Get locale from URL params (inherited from parent route)
+  const allParams = useParams({ strict: false })
+  const currentLocale = allParams.locale || 'en'
   const navigate = useNavigate()
   const { data: recipe, isLoading, isError, error } = useRecipe(Number(recipeId))
   const deleteRecipe = useDeleteRecipe()
@@ -20,7 +21,7 @@ function RecipeDetail() {
     if (window.confirm(t('recipes.deleteConfirm', { title: recipe?.title }))) {
       deleteRecipe.mutate(Number(recipeId), {
         onSuccess: () => {
-          navigate({ to: '/{-$locale}/', params: { locale: currentLocale === 'en' ? undefined : currentLocale } })
+          navigate({ to: '/{-$locale}', params: { locale: currentLocale === 'en' ? undefined : currentLocale } })
         },
       })
     }
@@ -56,7 +57,7 @@ function RecipeDetail() {
           </div>
           <div className="mt-4">
             <Link
-              to="/{-$locale}/"
+              to="/{-$locale}"
               params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
               className="text-blue-600 hover:text-blue-800 font-medium"
             >
@@ -73,7 +74,7 @@ function RecipeDetail() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <Link
-            to="/{-$locale}/"
+            to="/{-$locale}"
             params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
             className="text-blue-600 hover:text-blue-800 font-medium mb-4 inline-block"
           >

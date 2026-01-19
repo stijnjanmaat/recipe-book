@@ -1,5 +1,6 @@
 import { useNavigate, useParams, useRouterState } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
+import { detectLocaleFromPath } from '~/lib/i18n/config'
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation()
@@ -11,9 +12,7 @@ export function LanguageSwitcher() {
   // Remove locale prefix if present
   const pathWithoutLocale = currentRoute.replace(/^\/(en|nl)/, '') || '/'
   
-  // Detect current locale from URL
-  const pathSegments = currentRoute.split('/').filter(Boolean)
-  const currentLocale = (pathSegments[0] === 'nl' || pathSegments[0] === 'en') ? pathSegments[0] : 'en'
+  const currentLocale = detectLocaleFromPath(currentRoute)
 
   const switchLanguage = (newLocale: string) => {
     // Build new path with locale

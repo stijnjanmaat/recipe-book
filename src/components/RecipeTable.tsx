@@ -13,6 +13,7 @@ import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { useRecipes, useDeleteRecipe } from '~/hooks/useRecipes'
 import type { Recipe } from '~/types/recipe'
+import { detectLocaleFromPath } from '~/lib/i18n/config'
 
 // Type for recipe with database fields and relations
 type RecipeWithId = Recipe & {
@@ -43,8 +44,7 @@ export function RecipeTable() {
   const routerState = useRouterState()
   // Detect locale from URL path
   const currentRoute = routerState.location.pathname
-  const pathSegments = currentRoute.split('/').filter(Boolean)
-  const currentLocale = (pathSegments[0] === 'nl' || pathSegments[0] === 'en') ? pathSegments[0] : 'en'
+  const currentLocale = detectLocaleFromPath(currentRoute)
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')

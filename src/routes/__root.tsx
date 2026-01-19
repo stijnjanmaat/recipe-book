@@ -3,11 +3,21 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '~/components/LanguageSwitcher'
+import { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
 import '../app.css'
 
 const queryClient = new QueryClient()
 
 export const Route = createRootRoute({
+  beforeLoad: async ({ location }) => {
+    // Detect locale from URL path on root route as well
+    // This ensures i18n is set before the root component renders
+    const locale = detectLocaleFromPath(location.pathname)
+    
+    // Ensure i18n is initialized with the correct locale
+    // This runs before any components render, preventing hydration mismatches
+    await ensureI18nInitialized(locale)
+  },
   head: () => ({
     meta: [
       {
@@ -30,8 +40,7 @@ function RootComponent() {
   // Get locale from URL path
   const routerState = useRouterState()
   const currentRoute = routerState.location.pathname
-  const pathSegments = currentRoute.split('/').filter(Boolean)
-  const locale = (pathSegments[0] === 'nl' || pathSegments[0] === 'en') ? pathSegments[0] : 'en'
+  const locale = detectLocaleFromPath(currentRoute)
 
   return (
     <html>
@@ -47,7 +56,7 @@ function RootComponent() {
                     <div className="flex">
                       <div className="shrink-0 flex items-center">
                         <Link 
-                          to="/{-$locale}/" 
+                          to="/{-$locale}" 
                           params={{ locale: locale === 'en' ? undefined : locale }}
                           className="text-xl font-bold text-gray-900"
                         >
@@ -56,7 +65,7 @@ function RootComponent() {
                       </div>
                       <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                         <Link
-                          to="/{-$locale}/"
+                          to="/{-$locale}"
                           params={{ locale: locale === 'en' ? undefined : locale }}
                           className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
                         >

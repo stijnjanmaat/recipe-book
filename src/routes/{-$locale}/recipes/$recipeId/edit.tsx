@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { useRecipe, useUpdateRecipe } from '~/hooks/useRecipes'
 import { useState, useEffect } from 'react'
@@ -13,8 +13,9 @@ function EditRecipe() {
   const { t } = useTranslation()
   const params = Route.useParams()
   const recipeId = params.recipeId
-  const localeContext = Route.useRouteContext()
-  const currentLocale = localeContext?.locale || 'en'
+  // Get locale from URL params (inherited from parent route)
+  const allParams = useParams({ strict: false })
+  const currentLocale = allParams.locale || 'en'
   const navigate = useNavigate()
   const { data: recipe, isLoading, isError } = useRecipe(Number(recipeId))
   const updateRecipe = useUpdateRecipe()
@@ -79,7 +80,7 @@ function EditRecipe() {
               params: { 
                 locale: currentLocale === 'en' ? undefined : currentLocale,
                 recipeId 
-              } 
+              }
             })
           },
           onError: (error) => {
@@ -138,7 +139,7 @@ function EditRecipe() {
               params: { 
                 locale: currentLocale === 'en' ? undefined : currentLocale,
                 recipeId 
-              } 
+              }
             })}
             className="text-blue-600 hover:text-blue-800 font-medium mb-4 inline-block"
           >
@@ -194,7 +195,7 @@ function EditRecipe() {
                 params: { 
                   locale: currentLocale === 'en' ? undefined : currentLocale,
                   recipeId 
-                } 
+                }
               })}
               className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >

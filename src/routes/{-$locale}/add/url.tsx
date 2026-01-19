@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate, useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useExtractRecipeFromUrl } from '~/hooks/useRecipes'
@@ -10,8 +10,9 @@ export const Route = createFileRoute('/{-$locale}/add/url')({
 function AddRecipeFromUrl() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const localeContext = Route.useRouteContext()
-  const currentLocale = localeContext?.locale || 'en'
+  // Get locale from URL params (inherited from parent route)
+  const allParams = useParams({ strict: false })
+  const currentLocale = allParams.locale || 'en'
   const [url, setUrl] = useState('')
   const extractRecipe = useExtractRecipeFromUrl()
 
@@ -28,7 +29,7 @@ function AddRecipeFromUrl() {
             params: { 
               recipeId: recipe.id.toString(),
               locale: currentLocale === 'en' ? undefined : currentLocale
-            } 
+            }
           })
         },
       })
@@ -96,7 +97,10 @@ function AddRecipeFromUrl() {
             <div className="flex justify-end space-x-3">
               <button
                 type="button"
-                onClick={() => navigate({ to: '/{-$locale}/', params: { locale: currentLocale === 'en' ? undefined : currentLocale } })}
+                onClick={() => navigate({ 
+                  to: '/{-$locale}', 
+                  params: { locale: currentLocale === 'en' ? undefined : currentLocale }
+                })}
                 className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 {t('common.cancel')}

@@ -70,14 +70,21 @@
   "addRecipe": {
     "fromImage": "Add Recipe from Image",
     "fromUrl": "Add Recipe from URL",
+    "imageDescription": "Upload an image of a recipe to extract its details automatically",
+    "urlDescription": "Enter a URL to a recipe webpage to extract its details automatically",
     "dragDrop": "Drag 'n' drop an image here, or click to select one",
     "dragActive": "Drop the image here ...",
     "imageHint": "(e.g., photo of a recipe, screenshot)",
+    "imageFormats": "Supported formats: PNG, JPG, JPEG, GIF, WEBP",
+    "imageReplace": "Click to replace image",
     "urlPlaceholder": "e.g., https://www.allrecipes.com/recipe/...",
     "extracting": "Extracting recipe... This might take a moment.",
+    "extractingMoment": "Please wait while we process your recipe",
     "error": "Failed to extract recipe.",
+    "errorExtracting": "An error occurred while extracting the recipe. Please try again.",
     "switchToUrl": "Prefer to add from a URL?",
-    "switchToImage": "Prefer to add from an image?"
+    "switchToImage": "Prefer to add from an image?",
+    "extractButton": "Extract Recipe"
   },
   "editRecipe": {
     "title": "Edit Recipe",
@@ -99,6 +106,8 @@
     "saveChanges": "Save Changes",
     "backToRecipe": "Back to Recipe",
     "error": "Error loading recipe",
+    "errorLoading": "Error loading recipe",
+    "notFound": "Recipe not found",
     "submitError": "Failed to update recipe"
   }
 }
