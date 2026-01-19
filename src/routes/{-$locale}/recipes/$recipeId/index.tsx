@@ -1,6 +1,9 @@
 import { createFileRoute, useNavigate, Link, useParams } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { useRecipe, useDeleteRecipe } from '~/hooks/useRecipes'
+import { Button } from '~/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
 
 export const Route = createFileRoute('/{-$locale}/recipes/$recipeId/')({
   component: RecipeDetail,
@@ -45,24 +48,21 @@ function RecipeDetail() {
     return (
       <div className="px-4 py-6 sm:px-0">
         <div className="max-w-4xl mx-auto">
-          <div className="rounded-md bg-red-50 p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">{t('recipe.error')}</h3>
-                <div className="mt-2 text-sm text-red-700">
-                  {error instanceof Error ? error.message : t('recipe.notFound')}
-                </div>
-              </div>
-            </div>
-          </div>
+          <Alert variant="destructive">
+            <AlertTitle>{t('recipe.error')}</AlertTitle>
+            <AlertDescription>
+              {error instanceof Error ? error.message : t('recipe.notFound')}
+            </AlertDescription>
+          </Alert>
           <div className="mt-4">
-            <Link
-              to="/{-$locale}"
-              params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
-              className="text-blue-600 hover:text-blue-800 font-medium"
-            >
-              ← {t('recipe.backToRecipes')}
-            </Link>
+            <Button asChild variant="ghost">
+              <Link
+                to="/{-$locale}"
+                params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
+              >
+                ← {t('recipe.backToRecipes')}
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -73,13 +73,14 @@ function RecipeDetail() {
     <div className="px-4 py-6 sm:px-0">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <Link
-            to="/{-$locale}"
-            params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
-            className="text-blue-600 hover:text-blue-800 font-medium mb-4 inline-block"
-          >
-            ← {t('recipe.backToRecipes')}
-          </Link>
+          <Button asChild variant="ghost" className="mb-4">
+            <Link
+              to="/{-$locale}"
+              params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
+            >
+              ← {t('recipe.backToRecipes')}
+            </Link>
+          </Button>
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h1 className="text-4xl font-bold text-gray-900 mb-2">{recipe.title}</h1>
@@ -88,20 +89,21 @@ function RecipeDetail() {
               )}
             </div>
             <div className="flex gap-2 ml-4">
-              <Link
-                to="/{-$locale}/recipes/$recipeId/edit"
-                params={{ locale: currentLocale === 'en' ? undefined : currentLocale, recipeId }}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                {t('common.edit')}
-              </Link>
-              <button
+              <Button asChild variant="outline">
+                <Link
+                  to="/{-$locale}/recipes/$recipeId/edit"
+                  params={{ locale: currentLocale === 'en' ? undefined : currentLocale, recipeId }}
+                >
+                  {t('common.edit')}
+                </Link>
+              </Button>
+              <Button
                 onClick={handleDelete}
                 disabled={deleteRecipe.isPending}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-400"
+                variant="destructive"
               >
                 {deleteRecipe.isPending ? t('recipes.deleting') : t('common.delete')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -158,21 +160,25 @@ function RecipeDetail() {
 
           <div className="lg:col-span-1">
             {recipe.source && (
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{t('recipe.source')}</h3>
-                {recipe.source.startsWith('http') ? (
-                  <a
-                    href={recipe.source}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 break-all"
-                  >
-                    {recipe.source}
-                  </a>
-                ) : (
-                  <p className="text-gray-700">{recipe.source}</p>
-                )}
-              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('recipe.source')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {recipe.source.startsWith('http') ? (
+                    <a
+                      href={recipe.source}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline break-all"
+                    >
+                      {recipe.source}
+                    </a>
+                  ) : (
+                    <p>{recipe.source}</p>
+                  )}
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>

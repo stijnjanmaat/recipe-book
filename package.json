@@ -25,6 +25,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-slot": "^1.2.4",
     "@tanstack/react-query": "^5.90.18",
     "@tanstack/react-router": "^1.150.0",
     "@tanstack/react-start": "^1.150.0",
@@ -33,14 +35,18 @@
     "@vercel/blob": "^2.0.0",
     "@vercel/postgres": "^0.10.0",
     "ai": "^6.0.39",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.1",
     "i18next": "^25.7.4",
+    "lucide-react": "^0.562.0",
     "openai": "^6.16.0",
     "postgres": "^3.4.8",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-dropzone": "^14.3.8",
     "react-i18next": "^16.5.3",
+    "tailwind-merge": "^3.4.0",
     "zod": "^4.3.5"
   },
   "devDependencies": {
@@ -55,6 +61,7 @@
     "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.8",
     "tailwindcss": "^4.1.18",
+    "tw-animate-css": "^1.4.0",
     "typescript": "^5.9.3",
     "vite": "^6.4.1",
     "vite-tsconfig-paths": "^6.0.4"

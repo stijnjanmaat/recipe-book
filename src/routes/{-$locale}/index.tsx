@@ -2,6 +2,7 @@ import { createFileRoute, Link, useParams } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
 import { RecipeTable } from '~/components/RecipeTable'
+import { Button } from '~/components/ui/button'
 
 export const Route = createFileRoute('/{-$locale}/')({
   beforeLoad: async ({ location }) => {
@@ -35,13 +36,14 @@ function IndexComponent() {
           <h1 className="text-3xl font-bold text-gray-900">{t('recipes.title')}</h1>
           <p className="mt-1 text-sm text-gray-600">{t('recipes.description')}</p>
         </div>
-        <Link
-          to="/{-$locale}/add/image"
-          params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          {t('nav.addRecipe')}
-        </Link>
+        <Button asChild>
+          <Link
+            to="/{-$locale}/add/image"
+            params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
+          >
+            {t('nav.addRecipe')}
+          </Link>
+        </Button>
       </div>
       <RecipeTable />
     </div>

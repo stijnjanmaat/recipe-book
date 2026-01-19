@@ -2,6 +2,11 @@ import { createFileRoute, Link, useNavigate, useParams } from '@tanstack/react-r
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useExtractRecipeFromUrl } from '~/hooks/useRecipes'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
 
 export const Route = createFileRoute('/{-$locale}/add/url')({
   component: AddRecipeFromUrl,
@@ -56,62 +61,56 @@ function AddRecipeFromUrl() {
         </div>
 
         {extractRecipe.isError && (
-          <div className="mb-4 rounded-md bg-red-50 p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">{t('common.error')}</h3>
-                <div className="mt-2 text-sm text-red-700">
-                  {extractRecipe.error instanceof Error ? extractRecipe.error.message : t('addRecipe.errorExtracting')}
-                </div>
-              </div>
-            </div>
-          </div>
+          <Alert variant="destructive" className="mb-4">
+            <AlertTitle>{t('common.error')}</AlertTitle>
+            <AlertDescription>
+              {extractRecipe.error instanceof Error ? extractRecipe.error.message : t('addRecipe.errorExtracting')}
+            </AlertDescription>
+          </Alert>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="url" className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="space-y-2">
+            <Label htmlFor="url">
               {t('addRecipe.fromUrl')}
-            </label>
-            <input
+            </Label>
+            <Input
               type="url"
               id="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder={t('addRecipe.urlPlaceholder')}
               disabled={extractRecipe.isPending}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
               required
             />
           </div>
 
           {extractRecipe.isPending ? (
-            <div className="flex items-center justify-center py-8">
+            <Card className="flex items-center justify-center py-8">
               <div className="flex flex-col items-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-                <p className="text-lg font-medium text-gray-900">{t('addRecipe.extracting')}</p>
-                <p className="text-sm text-gray-600">{t('addRecipe.extractingMoment')}</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <p className="text-lg font-medium">{t('addRecipe.extracting')}</p>
+                <p className="text-sm text-muted-foreground">{t('addRecipe.extractingMoment')}</p>
               </div>
-            </div>
+            </Card>
           ) : (
-            <div className="flex justify-end space-x-3">
-              <button
+            <div className="flex justify-end gap-3">
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => navigate({ 
                   to: '/{-$locale}', 
                   params: { locale: currentLocale === 'en' ? undefined : currentLocale }
                 })}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 {t('common.cancel')}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 disabled={!url.trim() || extractRecipe.isPending}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {t('addRecipe.extractButton')}
-              </button>
+              </Button>
             </div>
           )}
         </form>

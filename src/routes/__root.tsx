@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '~/components/LanguageSwitcher'
 import i18n, { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
+import { Button } from '~/components/ui/button'
 import '../app.css'
 
 const queryClient = new QueryClient()
@@ -52,9 +53,9 @@ function RootComponent() {
           <div className="min-h-screen bg-gray-50">
             <nav className="bg-white shadow-sm border-b">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <div className="flex justify-between h-16">
-                    <div className="flex">
-                      <div className="shrink-0 flex items-center">
+                  <div className="flex justify-between items-center h-16">
+                    <div className="flex items-center">
+                      <div className="shrink-0">
                         <Link 
                           to="/{-$locale}" 
                           params={{ locale: locale === 'en' ? undefined : locale }}
@@ -63,21 +64,23 @@ function RootComponent() {
                           {t('nav.appName')}
                         </Link>
                       </div>
-                      <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <Link
-                          to="/{-$locale}"
-                          params={{ locale: locale === 'en' ? undefined : locale }}
-                          className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                        >
-                          {t('nav.recipes')}
-                        </Link>
-                        <Link
-                          to="/{-$locale}/add/image"
-                          params={{ locale: locale === 'en' ? undefined : locale }}
-                          className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                        >
-                          {t('nav.addRecipe')}
-                        </Link>
+                      <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-2">
+                        <Button asChild variant="ghost">
+                          <Link
+                            to="/{-$locale}"
+                            params={{ locale: locale === 'en' ? undefined : locale }}
+                          >
+                            {t('nav.recipes')}
+                          </Link>
+                        </Button>
+                        <Button asChild variant="ghost">
+                          <Link
+                            to="/{-$locale}/add/image"
+                            params={{ locale: locale === 'en' ? undefined : locale }}
+                          >
+                            {t('nav.addRecipe')}
+                          </Link>
+                        </Button>
                       </div>
                     </div>
                     <div className="flex items-center">

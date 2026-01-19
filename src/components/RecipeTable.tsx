@@ -14,6 +14,18 @@ import { useTranslation } from 'react-i18next'
 import { useRecipes, useDeleteRecipe } from '~/hooks/useRecipes'
 import type { Recipe } from '~/types/recipe'
 import { detectLocaleFromPath } from '~/lib/i18n/config'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '~/components/ui/table'
+import { Input } from '~/components/ui/input'
+import { Button } from '~/components/ui/button'
+import { Card } from '~/components/ui/card'
+import { Alert, AlertDescription } from '~/components/ui/alert'
 
 // Type for recipe with database fields and relations
 type RecipeWithId = Recipe & {
@@ -77,7 +89,7 @@ export function RecipeTable() {
                 }}
               />
             ) : (
-              <div className="h-16 w-16 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs cursor-pointer hover:bg-gray-300 transition-colors">
+              <div className="h-16 w-16 bg-muted rounded flex items-center justify-center text-muted-foreground text-xs cursor-pointer hover:bg-muted/80 transition-colors">
                 {t('recipes.table.noImage')}
               </div>
             )}
@@ -96,7 +108,7 @@ export function RecipeTable() {
             recipeId: row.original.id.toString(),
             locale: currentLocale === 'en' ? undefined : currentLocale
           }}
-          className="font-medium text-blue-600 hover:text-blue-800"
+          className="font-medium text-primary hover:underline"
         >
           {row.original.title}
         </Link>
@@ -106,7 +118,7 @@ export function RecipeTable() {
       accessorKey: 'description',
       header: t('recipes.table.description'),
       cell: ({ row }) => (
-        <div className="max-w-md truncate text-sm text-gray-600">
+        <div className="max-w-md truncate text-sm text-muted-foreground">
           {row.original.description || '-'}
         </div>
       ),
@@ -164,28 +176,31 @@ export function RecipeTable() {
       header: t('recipes.table.actions'),
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
-          <Link
-            to="/{-$locale}/recipes/$recipeId"
-            params={{ 
-              recipeId: row.original.id.toString(),
-              locale: currentLocale === 'en' ? undefined : currentLocale
-            }}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-          >
-            {t('recipes.view')}
-          </Link>
-          <button
+          <Button asChild variant="ghost" size="sm">
+            <Link
+              to="/{-$locale}/recipes/$recipeId"
+              params={{ 
+                recipeId: row.original.id.toString(),
+                locale: currentLocale === 'en' ? undefined : currentLocale
+              }}
+            >
+              {t('recipes.view')}
+            </Link>
+          </Button>
+          <Button
             onClick={(e) => {
               e.stopPropagation()
               if (confirm(t('recipes.deleteConfirm', { title: row.original.title }))) {
                 deleteRecipe.mutate(row.original.id)
               }
             }}
-            className="text-red-600 hover:text-red-800 text-sm font-medium"
+            variant="ghost"
+            size="sm"
             disabled={deleteRecipe.isPending}
+            className="text-destructive hover:text-destructive"
           >
             {deleteRecipe.isPending ? t('recipes.deleting') : t('common.delete')}
-          </button>
+          </Button>
         </div>
       ),
       enableSorting: false,
@@ -218,8 +233,8 @@ export function RecipeTable() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <p className="mt-4 text-gray-600">{t('recipes.loading')}</p>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">{t('recipes.loading')}</p>
         </div>
       </div>
     )
@@ -227,9 +242,11 @@ export function RecipeTable() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">{t('recipes.error')}: {error.message}</p>
-      </div>
+      <Alert variant="destructive">
+        <AlertDescription>
+          {t('recipes.error')}: {error.message}
+        </AlertDescription>
+      </Alert>
     )
   }
 
@@ -237,136 +254,135 @@ export function RecipeTable() {
     <div className="space-y-4">
       {/* Search and filters */}
       <div className="flex items-center gap-4">
-        <input
+        <Input
           type="text"
           placeholder={t('recipes.search')}
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="max-w-sm"
         />
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-muted-foreground">
           {table.getFilteredRowModel().rows.length}{' '}
           {table.getFilteredRowModel().rows.length !== 1 ? t('recipes.table.recipes') : t('recipes.table.recipe')}
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      {header.isPlaceholder ? null : (
-                        <div
-                          className={
-                            header.column.getCanSort()
-                              ? 'cursor-pointer select-none hover:text-gray-700'
-                              : ''
-                          }
-                          onClick={header.column.getToggleSortingHandler()}
-                        >
-                          {header.column.columnDef.header as string}
-                          {{
-                            asc: ' ↑',
-                            desc: ' ↓',
-                          }[header.column.getIsSorted() as string] ?? ''}
-                        </div>
-                      )}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {table.getRowModel().rows.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length} className="px-6 py-12 text-center text-gray-500">
-                    {t('recipes.noRecipes')}
-                  </td>
-                </tr>
-              ) : (
-                table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-gray-50 cursor-pointer"
-                    onClick={() => {
-                      // Navigate to recipe detail when row is clicked
-                      navigate({ 
-                        to: '/{-$locale}/recipes/$recipeId', 
-                        params: { 
-                          recipeId: row.original.id.toString(),
-                          locale: currentLocale === 'en' ? undefined : currentLocale
-                        } 
-                      })
-                    }}
+      <Card>
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className={
+                      header.column.getCanSort()
+                        ? 'cursor-pointer select-none hover:text-foreground'
+                        : ''
+                    }
+                    onClick={header.column.getToggleSortingHandler()}
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="px-6 py-4 whitespace-nowrap text-sm"
-                        onClick={(e) => {
-                          // Prevent navigation if clicking on action buttons or links
-                          const target = e.target as HTMLElement
-                          if (
-                            target.tagName === 'BUTTON' ||
-                            target.tagName === 'A' ||
-                            target.closest('button') ||
-                            target.closest('a')
-                          ) {
-                            e.stopPropagation()
-                          }
-                        }}
-                      >
-                        {cell.renderValue() as React.ReactNode}
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                    {header.isPlaceholder ? null : (
+                      <div className="flex items-center gap-2">
+                        {header.column.columnDef.header as string}
+                        {{
+                          asc: ' ↑',
+                          desc: ' ↓',
+                        }[header.column.getIsSorted() as string] ?? ''}
+                      </div>
+                    )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  {t('recipes.noRecipes')}
+                </TableCell>
+              </TableRow>
+            ) : (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    // Navigate to recipe detail when row is clicked
+                    navigate({ 
+                      to: '/{-$locale}/recipes/$recipeId', 
+                      params: { 
+                        recipeId: row.original.id.toString(),
+                        locale: currentLocale === 'en' ? undefined : currentLocale
+                      } 
+                    })
+                  }}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      onClick={(e) => {
+                        // Prevent navigation if clicking on action buttons or links
+                        const target = e.target as HTMLElement
+                        if (
+                          target.tagName === 'BUTTON' ||
+                          target.tagName === 'A' ||
+                          target.closest('button') ||
+                          target.closest('a')
+                        ) {
+                          e.stopPropagation()
+                        }
+                      }}
+                    >
+                      {cell.renderValue() as React.ReactNode}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
 
         {/* Pagination */}
         {table.getPageCount() > 1 && (
-          <div className="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
+          <div className="flex items-center justify-between px-4 py-3 border-t">
             <div className="flex items-center gap-2">
-              <button
+              <Button
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
-                className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                variant="outline"
+                size="sm"
               >
                 {t('recipes.table.first')}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                variant="outline"
+                size="sm"
               >
                 {t('recipes.table.previous')}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                variant="outline"
+                size="sm"
               >
                 {t('recipes.table.next')}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
-                className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                variant="outline"
+                size="sm"
               >
                 {t('recipes.table.last')}
-              </button>
+              </Button>
             </div>
-            <div className="text-sm text-gray-700">
+            <div className="text-sm text-muted-foreground">
               {t('recipes.table.page')}{' '}
               <strong>
                 {table.getState().pagination.pageIndex + 1} {t('recipes.table.of')} {table.getPageCount()}
@@ -374,7 +390,7 @@ export function RecipeTable() {
             </div>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   )
 }

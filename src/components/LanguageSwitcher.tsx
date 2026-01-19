@@ -1,6 +1,7 @@
 import { useNavigate, useParams, useRouterState } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { detectLocaleFromPath } from '~/lib/i18n/config'
+import { Button } from '~/components/ui/button'
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation()
@@ -22,26 +23,20 @@ export function LanguageSwitcher() {
 
   return (
     <div className="flex items-center gap-2">
-      <button
+      <Button
         onClick={() => switchLanguage('en')}
-        className={`px-3 py-1 text-sm rounded-md transition-colors ${
-          currentLocale === 'en'
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-        }`}
+        variant={currentLocale === 'en' ? 'default' : 'outline'}
+        size="sm"
       >
         EN
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={() => switchLanguage('nl')}
-        className={`px-3 py-1 text-sm rounded-md transition-colors ${
-          currentLocale === 'nl'
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-        }`}
+        variant={currentLocale === 'nl' ? 'default' : 'outline'}
+        size="sm"
       >
         NL
-      </button>
+      </Button>
     </div>
   )
 }

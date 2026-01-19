@@ -3,6 +3,8 @@ import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDropzone } from 'react-dropzone'
 import { useExtractRecipeFromImage } from '~/hooks/useRecipes'
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
+import { Card } from '~/components/ui/card'
 
 export const Route = createFileRoute('/{-$locale}/add/image')({
   component: AddRecipeFromImage,
@@ -76,45 +78,41 @@ function AddRecipeFromImage() {
         </div>
 
         {extractRecipe.isError && (
-          <div className="mb-4 rounded-md bg-red-50 p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">{t('common.error')}</h3>
-                <div className="mt-2 text-sm text-red-700">
-                  {extractRecipe.error instanceof Error ? extractRecipe.error.message : t('addRecipe.errorExtracting')}
-                </div>
-              </div>
-            </div>
-          </div>
+          <Alert variant="destructive" className="mb-4">
+            <AlertTitle>{t('common.error')}</AlertTitle>
+            <AlertDescription>
+              {extractRecipe.error instanceof Error ? extractRecipe.error.message : t('addRecipe.errorExtracting')}
+            </AlertDescription>
+          </Alert>
         )}
 
         {extractRecipe.isPending ? (
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
+          <Card className="border-2 border-dashed p-12 text-center">
             <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-              <p className="text-lg font-medium text-gray-900">{t('addRecipe.extracting')}</p>
-              <p className="text-sm text-gray-600">{t('addRecipe.extractingMoment')}</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+              <p className="text-lg font-medium">{t('addRecipe.extracting')}</p>
+              <p className="text-sm text-muted-foreground">{t('addRecipe.extractingMoment')}</p>
             </div>
-          </div>
+          </Card>
         ) : (
-          <div
+          <Card
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${
+            className={`border-2 border-dashed p-12 text-center cursor-pointer transition-colors ${
               isDragActive
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-gray-400 bg-white'
+                ? 'border-primary bg-accent'
+                : 'hover:border-primary/50'
             }`}
           >
             <input {...getInputProps()} />
             {preview ? (
               <div className="space-y-4">
-                <img src={preview} alt="Preview" className="max-h-64 mx-auto rounded-lg shadow-md" />
-                <p className="text-sm text-gray-600">{t('addRecipe.imageReplace')}</p>
+                <img src={preview} alt="Preview" className="max-h-64 mx-auto rounded-lg" />
+                <p className="text-sm text-muted-foreground">{t('addRecipe.imageReplace')}</p>
               </div>
             ) : (
               <div className="space-y-4">
                 <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
+                  className="mx-auto h-12 w-12 text-muted-foreground"
                   stroke="currentColor"
                   fill="none"
                   viewBox="0 0 48 48"
@@ -128,15 +126,15 @@ function AddRecipeFromImage() {
                   />
                 </svg>
                 <div>
-                  <p className="text-lg font-medium text-gray-900">
+                  <p className="text-lg font-medium">
                     {isDragActive ? t('addRecipe.dragActive') : t('addRecipe.dragDrop')}
                   </p>
                 </div>
-                <p className="text-xs text-gray-500">{t('addRecipe.imageHint')}</p>
-                <p className="text-xs text-gray-500">{t('addRecipe.imageFormats')}</p>
+                <p className="text-xs text-muted-foreground">{t('addRecipe.imageHint')}</p>
+                <p className="text-xs text-muted-foreground">{t('addRecipe.imageFormats')}</p>
               </div>
             )}
-          </div>
+          </Card>
         )}
       </div>
     </div>

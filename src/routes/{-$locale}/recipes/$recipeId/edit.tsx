@@ -4,6 +4,12 @@ import { useRecipe, useUpdateRecipe } from '~/hooks/useRecipes'
 import { useState, useEffect } from 'react'
 import { z } from 'zod'
 import { UpdateRecipeSchema } from '~/types/recipe'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Textarea } from '~/components/ui/textarea'
+import { Label } from '~/components/ui/label'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import { Alert, AlertDescription } from '~/components/ui/alert'
 
 export const Route = createFileRoute('/{-$locale}/recipes/$recipeId/edit')({
   component: EditRecipe,
@@ -120,10 +126,12 @@ function EditRecipe() {
     return (
       <div className="px-4 py-6 sm:px-0">
         <div className="max-w-4xl mx-auto">
-          <div className="rounded-md bg-red-50 p-4">
-            <h3 className="text-sm font-medium text-red-800">{t('editRecipe.errorLoading')}</h3>
-            <p className="mt-2 text-sm text-red-700">{t('editRecipe.notFound')}</p>
-          </div>
+          <Alert variant="destructive">
+            <AlertDescription>
+              <p className="font-medium">{t('editRecipe.errorLoading')}</p>
+              <p className="mt-2">{t('editRecipe.notFound')}</p>
+            </AlertDescription>
+          </Alert>
         </div>
       </div>
     )
@@ -133,7 +141,8 @@ function EditRecipe() {
     <div className="px-4 py-6 sm:px-0">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <button
+          <Button
+            variant="ghost"
             onClick={() => navigate({ 
               to: '/{-$locale}/recipes/$recipeId', 
               params: { 
@@ -141,55 +150,56 @@ function EditRecipe() {
                 recipeId 
               }
             })}
-            className="text-blue-600 hover:text-blue-800 font-medium mb-4 inline-block"
+            className="mb-4"
           >
             ← {t('editRecipe.backToRecipe')}
-          </button>
+          </Button>
           <h1 className="text-3xl font-bold text-gray-900">{t('editRecipe.title')}</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">{t('editRecipe.basicInfo')}</h2>
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('editRecipe.basicInfo')}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">
                   {t('editRecipe.titleLabel')} *
-                </label>
-                <input
+                </Label>
+                <Input
                   type="text"
                   id="title"
                   value={formData.title || ''}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
                 />
-                {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
+                {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
               </div>
 
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+              <div className="space-y-2">
+                <Label htmlFor="description">
                   {t('editRecipe.descriptionLabel')}
-                </label>
-                <textarea
+                </Label>
+                <Textarea
                   id="description"
                   value={formData.description || ''}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value || undefined })}
                   rows={3}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {errors.submit && (
-            <div className="mt-4 rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{errors.submit}</p>
-            </div>
+            <Alert variant="destructive">
+              <AlertDescription>{errors.submit}</AlertDescription>
+            </Alert>
           )}
           <div className="flex justify-end gap-4">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => navigate({ 
                 to: '/{-$locale}/recipes/$recipeId', 
                 params: { 
@@ -197,17 +207,15 @@ function EditRecipe() {
                   recipeId 
                 }
               })}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
               {t('common.cancel')}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={updateRecipe.isPending}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
             >
               {updateRecipe.isPending ? t('editRecipe.saving') : t('editRecipe.saveChanges')}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
