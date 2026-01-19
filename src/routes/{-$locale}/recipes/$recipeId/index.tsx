@@ -171,7 +171,26 @@ function RecipeDetail() {
             )}
           </div>
 
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-4">
+            {recipe.tags && recipe.tags.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('recipe.tags')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {recipe.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-sm border-2 border-border"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
             {recipe.source && (
               <Card>
                 <CardHeader>

@@ -7,6 +7,7 @@ import {
   type ColumnDef,
   type SortingState,
   type ColumnFiltersState,
+  type FilterFn,
 } from '@tanstack/react-table'
 import { useState } from 'react'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
@@ -207,6 +208,47 @@ export function RecipeTable() {
     },
   ]
 
+  // Custom filter function that searches across multiple fields
+  const globalFilterFn: FilterFn<RecipeWithId> = (row, columnId, filterValue) => {
+    if (!filterValue || typeof filterValue !== 'string') return true
+    
+    const searchTerm = filterValue.toLowerCase()
+    const recipe = row.original
+    
+    // Search in title
+    if (recipe.title?.toLowerCase().includes(searchTerm)) return true
+    
+    // Search in description
+    if (recipe.description?.toLowerCase().includes(searchTerm)) return true
+    
+    // Search in tags
+    if (recipe.tags && Array.isArray(recipe.tags)) {
+      if (recipe.tags.some(tag => tag?.toLowerCase().includes(searchTerm))) return true
+    }
+    
+    // Search in ingredients
+    if (recipe.ingredients) {
+      for (const ing of recipe.ingredients) {
+        if (ing.name?.toLowerCase().includes(searchTerm)) return true
+        if (ing.amount?.toLowerCase().includes(searchTerm)) return true
+        if (ing.unit?.toLowerCase().includes(searchTerm)) return true
+        if (ing.notes?.toLowerCase().includes(searchTerm)) return true
+      }
+    }
+    
+    // Search in instructions
+    if (recipe.instructions) {
+      for (const inst of recipe.instructions) {
+        if (inst.instruction?.toLowerCase().includes(searchTerm)) return true
+      }
+    }
+    
+    // Search in cuisine
+    if (recipe.cuisine?.toLowerCase().includes(searchTerm)) return true
+    
+    return false
+  }
+
   const table = useReactTable({
     data: recipes as RecipeWithId[],
     columns,
@@ -214,6 +256,7 @@ export function RecipeTable() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    globalFilterFn,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,

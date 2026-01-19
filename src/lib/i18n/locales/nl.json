@@ -107,6 +107,7 @@
     "difficultyLabel": "Moeilijkheidsgraad",
     "cuisineLabel": "Keuken",
     "tagsLabel": "Tags (komma-gescheiden)",
+    "tagsHint": "Scheid tags met komma's (bijv. dessert, chocolade, makkelijk)",
     "sourceLabel": "Bron",
     "addIngredient": "Ingrediënt Toevoegen",
     "addInstruction": "Instructie Toevoegen",

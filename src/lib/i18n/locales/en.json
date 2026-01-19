@@ -107,6 +107,7 @@
     "difficultyLabel": "Difficulty",
     "cuisineLabel": "Cuisine",
     "tagsLabel": "Tags (comma-separated)",
+    "tagsHint": "Separate tags with commas (e.g., dessert, chocolate, easy)",
     "sourceLabel": "Source",
     "addIngredient": "Add Ingredient",
     "addInstruction": "Add Instruction",

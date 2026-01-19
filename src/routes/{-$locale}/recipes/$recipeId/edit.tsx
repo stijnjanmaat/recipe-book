@@ -241,6 +241,27 @@ function EditRecipe() {
                   rows={3}
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tags">
+                  {t('editRecipe.tagsLabel')}
+                </Label>
+                <Input
+                  type="text"
+                  id="tags"
+                  placeholder={t('editRecipe.tagsLabel')}
+                  value={formData.tags?.join(', ') || ''}
+                  onChange={(e) => {
+                    const tags = e.target.value
+                      ? e.target.value.split(',').map(tag => tag.trim()).filter(Boolean)
+                      : undefined
+                    setFormData({ ...formData, tags })
+                  }}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t('editRecipe.tagsHint')}
+                </p>
+              </div>
             </CardContent>
           </Card>
 
