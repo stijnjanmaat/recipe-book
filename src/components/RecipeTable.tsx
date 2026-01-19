@@ -143,7 +143,7 @@ export function RecipeTable() {
       header: t('recipes.table.prepTime'),
       cell: ({ row }) => {
         const prepTime = row.original.prepTime
-        return prepTime ? `${prepTime} min` : '-'
+        return prepTime ? `${prepTime} ${t('common.minutes')}` : '-'
       },
     },
     {
@@ -151,7 +151,7 @@ export function RecipeTable() {
       header: t('recipes.table.cookTime'),
       cell: ({ row }) => {
         const cookTime = row.original.cookTime
-        return cookTime ? `${cookTime} min` : '-'
+        return cookTime ? `${cookTime} ${t('common.minutes')}` : '-'
       },
     },
     {
@@ -165,8 +165,11 @@ export function RecipeTable() {
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
           <Link
-            to="/recipes/$recipeId"
-            params={{ recipeId: row.original.id.toString() }}
+            to="/{-$locale}/recipes/$recipeId"
+            params={{ 
+              recipeId: row.original.id.toString(),
+              locale: currentLocale === 'en' ? undefined : currentLocale
+            }}
             className="text-blue-600 hover:text-blue-800 text-sm font-medium"
           >
             {t('recipes.view')}

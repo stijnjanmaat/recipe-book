@@ -3,7 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '~/components/LanguageSwitcher'
-import { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
+import i18n, { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
 import '../app.css'
 
 const queryClient = new QueryClient()
@@ -28,7 +28,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Recipe Book',
+        title: i18n.t('nav.appName'), // This is for the HTML <title> tag, can stay in English
       },
     ],
   }),
@@ -60,7 +60,7 @@ function RootComponent() {
                           params={{ locale: locale === 'en' ? undefined : locale }}
                           className="text-xl font-bold text-gray-900"
                         >
-                          Recipe Book
+                          {t('nav.appName')}
                         </Link>
                       </div>
                       <div className="hidden sm:ml-6 sm:flex sm:space-x-8">

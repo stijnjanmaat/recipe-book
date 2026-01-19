@@ -11,9 +11,12 @@
     "remove": "Remove",
     "back": "Back",
     "print": "Print",
-    "export": "Export"
+    "export": "Export",
+    "minutes": "minutes",
+    "unexpectedError": "An unexpected error occurred"
   },
   "nav": {
+    "appName": "Recipe Book",
     "recipes": "Recipes",
     "addRecipe": "Add Recipe"
   },

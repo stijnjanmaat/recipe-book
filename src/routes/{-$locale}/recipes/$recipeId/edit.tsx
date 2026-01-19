@@ -98,7 +98,7 @@ function EditRecipe() {
         })
         setErrors(fieldErrors)
       } else {
-        setErrors({ submit: 'An unexpected error occurred' })
+        setErrors({ submit: t('common.unexpectedError') })
       }
     }
   }
