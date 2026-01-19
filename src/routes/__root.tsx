@@ -50,8 +50,8 @@ function RootComponent() {
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
-          <div className="min-h-screen bg-gray-50">
-            <nav className="bg-white shadow-sm border-b">
+          <div className="min-h-screen bg-background">
+            <nav className="bg-card border-b-2 border-border">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="flex justify-between items-center h-16">
                     <div className="flex items-center">
@@ -59,7 +59,7 @@ function RootComponent() {
                         <Link 
                           to="/{-$locale}" 
                           params={{ locale: locale === 'en' ? undefined : locale }}
-                          className="text-xl font-bold text-gray-900"
+                          className="text-xl font-bold text-foreground"
                         >
                           {t('nav.appName')}
                         </Link>

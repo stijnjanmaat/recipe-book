@@ -83,9 +83,9 @@ function RecipeDetail() {
           </Button>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">{recipe.title}</h1>
+              <h1 className="text-4xl font-bold text-foreground mb-2">{recipe.title}</h1>
               {recipe.description && (
-                <p className="text-lg text-gray-600 mb-4">{recipe.description}</p>
+                <p className="text-lg text-muted-foreground mb-4">{recipe.description}</p>
               )}
             </div>
             <div className="flex gap-2 ml-4">
@@ -113,7 +113,7 @@ function RecipeDetail() {
             <img
               src={recipe.imageBlobUrl}
               alt={recipe.title}
-              className="w-full h-auto rounded-lg shadow-lg object-cover max-h-96"
+              className="w-full h-auto rounded-lg object-cover max-h-96"
             />
           </div>
         )}
@@ -122,12 +122,12 @@ function RecipeDetail() {
           <div className="lg:col-span-2 space-y-8">
             {recipe.ingredients && recipe.ingredients.length > 0 && (
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('recipe.ingredients')}</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('recipe.ingredients')}</h2>
                 <ul className="space-y-2">
                   {recipe.ingredients.map((ingredient, index) => (
                     <li key={index} className="flex items-start">
-                      <span className="mr-2 text-gray-500">•</span>
-                      <span className="text-gray-700">
+                      <span className="mr-2 text-muted-foreground">•</span>
+                      <span className="text-foreground">
                         {ingredient.amount && `${ingredient.amount} `}
                         {ingredient.unit && `${ingredient.unit} `}
                         <strong>{ingredient.name}</strong>
@@ -141,15 +141,15 @@ function RecipeDetail() {
 
             {recipe.instructions && recipe.instructions.length > 0 && (
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('recipe.instructions')}</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">{t('recipe.instructions')}</h2>
                 <ol className="space-y-4">
                   {recipe.instructions.map((instruction, index) => (
                     <li key={index} className="flex">
-                      <span className="shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold mr-4">
+                      <span className="shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold mr-4 text-lg">
                         {instruction.step}
                       </span>
                       <div className="flex-1">
-                        <p className="text-gray-700">{instruction.instruction}</p>
+                        <p className="text-foreground">{instruction.instruction}</p>
                       </div>
                     </li>
                   ))}

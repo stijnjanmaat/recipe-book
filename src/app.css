@@ -77,38 +77,47 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Custom color palette - Fresh & Fruity */
+  --lightning: #fab429;      /* Yellow-orange */
+  --bittersweet: #ff6e61;    /* Coral/orange-red */
+  --careys-pink: #d4a0a1;    /* Dusty rose */
+  --moss-green: #a6d9b6;     /* Mint green */
+  --juniper: #6d8d8b;        /* Blue-green/teal */
+  
+  /* Flat design - no shadows, full borders, generous spacing */
+  --radius: 0.5rem; /* Slightly reduced for cleaner look */
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: var(--lightning); /* Use Lightning as primary */
+  --primary-foreground: #1a1a1a;
+  --secondary: var(--moss-green);
+  --secondary-foreground: #1a1a1a;
+  --muted: #f5f5f5;
+  --muted-foreground: #666666;
+  --accent: var(--careys-pink);
+  --accent-foreground: #1a1a1a;
+  --destructive: var(--bittersweet);
+  --destructive-foreground: #ffffff;
+  --border: #e5e5e5; /* Full borders - visible but subtle */
+  --input: #e5e5e5;
+  --ring: var(--juniper);
+  --chart-1: var(--lightning);
+  --chart-2: var(--bittersweet);
+  --chart-3: var(--careys-pink);
+  --chart-4: var(--moss-green);
+  --chart-5: var(--juniper);
+  --sidebar: #fafafa;
+  --sidebar-foreground: #1a1a1a;
+  --sidebar-primary: var(--lightning);
+  --sidebar-primary-foreground: #1a1a1a;
+  --sidebar-accent: var(--moss-green);
+  --sidebar-accent-foreground: #1a1a1a;
+  --sidebar-border: #e5e5e5;
+  --sidebar-ring: var(--juniper);
 }
 
 .dark {
@@ -151,5 +160,26 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Flat design - remove shadows from common elements */
+  button,
+  .card,
+  [data-slot="card"],
+  input,
+  textarea,
+  select {
+    box-shadow: none !important;
+  }
+  
+  /* Generous spacing for fresh & clean look */
+  .space-y-4 > * + * {
+    margin-top: 1.5rem;
+  }
+  .space-y-6 > * + * {
+    margin-top: 2rem;
+  }
+  .space-y-8 > * + * {
+    margin-top: 2.5rem;
   }
 }

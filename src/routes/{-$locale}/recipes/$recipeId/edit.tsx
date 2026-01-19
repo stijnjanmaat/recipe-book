@@ -154,7 +154,7 @@ function EditRecipe() {
           >
             ← {t('editRecipe.backToRecipe')}
           </Button>
-          <h1 className="text-3xl font-bold text-gray-900">{t('editRecipe.title')}</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t('editRecipe.title')}</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
