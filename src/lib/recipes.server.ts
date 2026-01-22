@@ -10,12 +10,18 @@ import { CreateRecipeSchema, UpdateRecipeSchema } from '~/types/recipe'
 import type { Recipe } from '~/types/recipe'
 
 export async function getAllRecipes() {
-  return db.query.recipes.findMany({
+  const recipesList = await db.query.recipes.findMany({
     with: {
       ingredients: { orderBy: (ingredients, { asc }) => [asc(ingredients.order)] },
       instructions: { orderBy: (instructions, { asc }) => [asc(instructions.step)] },
     },
   })
+  
+  // Convert servingsRelevant from integer (0/1) to boolean
+  return recipesList.map(recipe => ({
+    ...recipe,
+    servingsRelevant: recipe.servingsRelevant === 1,
+  }))
 }
 
 export async function getRecipeById(recipeId: number) {
@@ -46,6 +52,7 @@ export async function getRecipeById(recipeId: number) {
 
   return {
     ...recipe,
+    servingsRelevant: recipe.servingsRelevant === 1,
     ingredients: recipeIngredients,
     instructions: recipeInstructions,
   }
@@ -62,6 +69,7 @@ export async function createRecipe(data: z.infer<typeof CreateRecipeSchema>) {
       cookTime: data.cookTime,
       totalTime: data.totalTime,
       servings: data.servings,
+      servingsRelevant: data.servingsRelevant !== undefined ? (data.servingsRelevant ? 1 : 0) : undefined,
       difficulty: data.difficulty,
       cuisine: data.cuisine,
       tags: data.tags,
@@ -127,6 +135,7 @@ export async function updateRecipe(recipeId: number, data: z.infer<typeof Update
   if (data.cookTime !== undefined) updateFields.cookTime = data.cookTime
   if (data.totalTime !== undefined) updateFields.totalTime = data.totalTime
   if (data.servings !== undefined) updateFields.servings = data.servings
+  if (data.servingsRelevant !== undefined) updateFields.servingsRelevant = data.servingsRelevant ? 1 : 0
   if (data.difficulty !== undefined) updateFields.difficulty = data.difficulty
   if (data.cuisine !== undefined) updateFields.cuisine = data.cuisine
   if (data.tags !== undefined) updateFields.tags = data.tags

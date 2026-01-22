@@ -25,6 +25,7 @@ export const RecipeSchema = z.object({
   cookTime: z.number().int().positive().optional(),
   totalTime: z.number().int().positive().optional(),
   servings: z.number().int().positive().optional(),
+  servingsRelevant: z.boolean().optional().default(true), // Whether servings are relevant for this recipe
   difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
   cuisine: z.string().optional(),
   tags: z.array(z.string()).optional(),

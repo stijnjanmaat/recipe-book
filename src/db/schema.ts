@@ -10,6 +10,7 @@ export const recipes = pgTable('recipes', {
   cookTime: integer('cook_time'), // minutes
   totalTime: integer('total_time'), // minutes
   servings: integer('servings'),
+  servingsRelevant: integer('servings_relevant').default(1), // 1 = relevant, 0 = irrelevant (e.g., for cakes)
   difficulty: text('difficulty'), // 'easy' | 'medium' | 'hard'
   cuisine: text('cuisine'),
   tags: text('tags').array(), // PostgreSQL array

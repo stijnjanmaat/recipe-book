@@ -26,10 +26,56 @@ export const Route = createRootRoute({
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+      },
+      {
+        name: 'description',
+        content: 'A recipe collection app with AI-powered extraction',
+      },
+      {
+        name: 'theme-color',
+        content: '#fab429',
+      },
+      {
+        name: 'apple-mobile-web-app-capable',
+        content: 'yes',
+      },
+      {
+        name: 'apple-mobile-web-app-status-bar-style',
+        content: 'default',
+      },
+      {
+        name: 'apple-mobile-web-app-title',
+        content: 'Recipe Book',
+      },
+      {
+        name: 'mobile-web-app-capable',
+        content: 'yes',
       },
       {
         title: i18n.t('nav.appName'), // This is for the HTML <title> tag, can stay in English
+      },
+    ],
+    links: [
+      {
+        rel: 'manifest',
+        href: '/manifest.json',
+      },
+      {
+        rel: 'apple-touch-icon',
+        href: '/apple-touch-icon.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '192x192',
+        href: '/icon-192.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '512x512',
+        href: '/icon-512.png',
       },
     ],
   }),

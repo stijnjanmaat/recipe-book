@@ -480,6 +480,7 @@ NODE_ENV="production"
 8. **Recipe Collections**: Organize recipes into collections/cookbooks
 9. **Recipe Import/Export**: Import from other platforms, export to various formats
 10. **AI Recipe Suggestions**: Generate recipe variations or substitutions
+11. **Servings Relevance**: Add a field to mark whether servings are relevant for a recipe (e.g., irrelevant for cakes, relevant for main dishes). Hide servings display on recipe detail page when marked as irrelevant, but keep the field in the database and allow editing.
 
 ## Technical Considerations
 

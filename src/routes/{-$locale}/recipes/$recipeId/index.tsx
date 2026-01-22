@@ -1,10 +1,14 @@
 import { createFileRoute, useNavigate, Link, useParams } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
+import { useState, useMemo, useEffect } from 'react'
 import { useRecipe, useDeleteRecipe } from '~/hooks/useRecipes'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
 import { interpolateIngredients } from '~/lib/utils/ingredient-interpolation'
+import { scaleIngredients } from '~/lib/utils/scale-ingredients'
 
 export const Route = createFileRoute('/{-$locale}/recipes/$recipeId/')({
   component: RecipeDetail,
@@ -20,6 +24,45 @@ function RecipeDetail() {
   const navigate = useNavigate()
   const { data: recipe, isLoading, isError, error } = useRecipe(Number(recipeId))
   const deleteRecipe = useDeleteRecipe()
+  
+  // Servings multiplier state (default to original servings, meaning no scaling)
+  const originalServings = recipe?.servings || 1
+  const [servingsMultiplier, setServingsMultiplier] = useState<number>(originalServings)
+  
+  // Reset multiplier to original servings when recipe changes
+  useEffect(() => {
+    if (recipe?.servings) {
+      setServingsMultiplier(recipe.servings)
+    }
+  }, [recipe?.servings])
+  
+  // Calculate multiplier ratio (desired servings / original servings)
+  const multiplierRatio = originalServings > 0 ? servingsMultiplier / originalServings : 1
+  
+  // Scale ingredients when multiplier changes
+  const scaledIngredients = useMemo(() => {
+    if (!recipe?.ingredients || multiplierRatio === 1) {
+      return (recipe?.ingredients || []).map((ing) => ({
+        name: ing.name,
+        identifier: ing.identifier || undefined,
+        amount: ing.amount || undefined,
+        unit: ing.unit || undefined,
+        notes: ing.notes || undefined,
+        order: ing.order ?? 0,
+      }))
+    }
+    return scaleIngredients(
+      recipe.ingredients.map((ing) => ({
+        name: ing.name,
+        identifier: ing.identifier || undefined,
+        amount: ing.amount || undefined,
+        unit: ing.unit || undefined,
+        notes: ing.notes || undefined,
+        order: ing.order ?? 0,
+      })),
+      multiplierRatio
+    )
+  }, [recipe?.ingredients, multiplierRatio])
 
   const handleDelete = () => {
     if (window.confirm(t('recipes.deleteConfirm', { title: recipe?.title }))) {
@@ -123,9 +166,38 @@ function RecipeDetail() {
           <div className="lg:col-span-2 space-y-8">
             {recipe.ingredients && recipe.ingredients.length > 0 && (
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">{t('recipe.ingredients')}</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-bold text-foreground">{t('recipe.ingredients')}</h2>
+                  {recipe.servings && recipe.servingsRelevant !== false && (
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="servings-multiplier" className="text-sm text-muted-foreground">
+                        {t('recipe.scaleTo')}:
+                      </Label>
+                      <Input
+                        id="servings-multiplier"
+                        type="number"
+                        min="1"
+                        max="10000"
+                        step="1"
+                        value={servingsMultiplier}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value)
+                          if (!isNaN(value) && value > 0) {
+                            setServingsMultiplier(value)
+                          }
+                        }}
+                        className="w-20"
+                      />
+                      {servingsMultiplier !== originalServings && (
+                        <span className="text-sm text-muted-foreground">
+                          ({t('recipe.originalServings')}: {originalServings})
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <ul className="space-y-2">
-                  {recipe.ingredients.map((ingredient, index) => (
+                  {scaledIngredients.map((ingredient, index) => (
                     <li key={index} className="flex items-start">
                       <span className="mr-2 text-muted-foreground">•</span>
                       <span className="text-foreground">
@@ -153,14 +225,7 @@ function RecipeDetail() {
                         <p className="text-foreground">
                           {interpolateIngredients(
                             instruction.instruction,
-                            (recipe.ingredients || []).map((ing) => ({
-                              name: ing.name,
-                              identifier: ing.identifier || undefined,
-                              amount: ing.amount || undefined,
-                              unit: ing.unit || undefined,
-                              notes: ing.notes || undefined,
-                              order: ing.order ?? 0,
-                            }))
+                            scaledIngredients
                           )}
                         </p>
                       </div>
@@ -172,6 +237,39 @@ function RecipeDetail() {
           </div>
 
           <div className="lg:col-span-1 space-y-4">
+            {(recipe.prepTime || recipe.cookTime || recipe.totalTime || (recipe.servings && recipe.servingsRelevant !== false)) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('recipe.metadata')}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {recipe.prepTime && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">{t('recipe.prepTime')}:</span>
+                      <span className="font-medium">{recipe.prepTime} {t('common.minutes')}</span>
+                    </div>
+                  )}
+                  {recipe.cookTime && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">{t('recipe.cookTime')}:</span>
+                      <span className="font-medium">{recipe.cookTime} {t('common.minutes')}</span>
+                    </div>
+                  )}
+                  {recipe.totalTime && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">{t('recipe.totalTime')}:</span>
+                      <span className="font-medium">{recipe.totalTime} {t('common.minutes')}</span>
+                    </div>
+                  )}
+                  {recipe.servings && recipe.servingsRelevant !== false && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">{t('recipe.servings')}:</span>
+                      <span className="font-medium">{recipe.servings}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
             {recipe.tags && recipe.tags.length > 0 && (
               <Card>
                 <CardHeader>

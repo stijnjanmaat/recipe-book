@@ -10,6 +10,7 @@ import { Textarea } from '~/components/ui/textarea'
 import { Label } from '~/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { Alert, AlertDescription } from '~/components/ui/alert'
+import { Checkbox } from '~/components/ui/checkbox'
 
 export const Route = createFileRoute('/{-$locale}/recipes/$recipeId/edit')({
   component: EditRecipe,
@@ -38,6 +39,7 @@ function EditRecipe() {
         cookTime: recipe.cookTime || undefined,
         totalTime: recipe.totalTime || undefined,
         servings: recipe.servings || undefined,
+        servingsRelevant: recipe.servingsRelevant !== undefined ? (recipe.servingsRelevant) : true,
         difficulty: (recipe.difficulty as 'easy' | 'medium' | 'hard' | undefined) || undefined,
         cuisine: recipe.cuisine || undefined,
         tags: recipe.tags || undefined,
@@ -260,6 +262,35 @@ function EditRecipe() {
                 />
                 <p className="text-xs text-muted-foreground">
                   {t('editRecipe.tagsHint')}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="servings">
+                  {t('editRecipe.servingsLabel')}
+                </Label>
+                <div className="flex items-center gap-4">
+                  <Input
+                    type="number"
+                    id="servings"
+                    value={formData.servings || ''}
+                    onChange={(e) => setFormData({ ...formData, servings: e.target.value ? Number(e.target.value) : undefined })}
+                    className="w-32"
+                    min="1"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="servingsRelevant"
+                      checked={formData.servingsRelevant !== false}
+                      onCheckedChange={(checked) => setFormData({ ...formData, servingsRelevant: checked === true })}
+                    />
+                    <Label htmlFor="servingsRelevant" className="text-sm font-normal cursor-pointer">
+                      {t('editRecipe.servingsRelevant')}
+                    </Label>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t('editRecipe.servingsHint')}
                 </p>
               </div>
             </CardContent>

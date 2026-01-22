@@ -33,6 +33,7 @@ type RecipeWithId = Recipe & {
   id: number
   createdAt: Date | null
   updatedAt: Date | null
+  servingsRelevant?: boolean // Converted from integer (0/1) to boolean in server
   ingredients?: Array<{
     id: number
     recipeId: number | null
@@ -170,7 +171,12 @@ export function RecipeTable() {
     {
       accessorKey: 'servings',
       header: t('recipes.table.servings'),
-      cell: ({ row }) => row.original.servings || '-',
+      cell: ({ row }) => {
+        const servings = row.original.servings
+        const servingsRelevant = row.original.servingsRelevant !== false // Default to true if undefined
+        if (!servingsRelevant) return '-'
+        return servings || '-'
+      },
     },
     {
       id: 'actions',
