@@ -9,8 +9,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsr generate && tsc && vite build",
     "preview": "vite preview",
+    "tsr:generate": "tsr generate",
     "vercel": "/Users/stijnjanmaat/Library/pnpm/vercel",
     "db:up": "docker-compose up -d",
     "db:down": "docker-compose down",
@@ -54,6 +55,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-router-devtools": "^1.150.0",
+    "@tanstack/router-cli": "^1.154.8",
     "@tanstack/router-plugin": "^1.150.0",
     "@types/node": "^25.0.9",
     "@types/react": "^19.2.8",
