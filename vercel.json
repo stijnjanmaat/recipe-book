@@ -1,6 +1,6 @@
 {
-  "buildCommand": "pnpm build",
-  "devCommand": "pnpm dev",
   "installCommand": "pnpm install",
-  "framework": null
+  "buildCommand": "pnpm build:prod",
+  "devCommand": "pnpm dev",
+  "outputDirectory": ".output"
 }
