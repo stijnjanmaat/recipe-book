@@ -8,9 +8,6 @@ export const authMiddleware = createMiddleware()
     const headers = getRequestHeaders()
     const session = await auth.api.getSession({ headers })
 
-    console.log('headers', headers)
-    console.log('session', session)
-
     if (!session) {
       throw redirect({ to: '/{-$locale}/login' })
     }
