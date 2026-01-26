@@ -39,7 +39,7 @@ function LoginComponent() {
   useEffect(() => {
     if (isAuthenticated && isSuperadmin) {
       navigate({
-        to: '/{-$locale}',
+        to: '/{-$locale}/recipes',
         params: { locale: currentLocale === 'en' ? undefined : currentLocale },
         replace: true,
       })

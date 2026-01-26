@@ -111,7 +111,7 @@ function AddRecipeFromUrl() {
                 type="button"
                 variant="outline"
                 onClick={() => navigate({ 
-                  to: '/{-$locale}', 
+                  to: '/{-$locale}/recipes', 
                   params: { locale: currentLocale === 'en' ? undefined : currentLocale }
                 })}
               >

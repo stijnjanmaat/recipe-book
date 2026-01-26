@@ -81,7 +81,7 @@ function RecipeDetail() {
     if (window.confirm(t('recipes.deleteConfirm', { title: recipe?.title }))) {
       deleteRecipe.mutate(Number(recipeId), {
         onSuccess: () => {
-          navigate({ to: '/{-$locale}', params: { locale: currentLocale === 'en' ? undefined : currentLocale } })
+          navigate({ to: '/{-$locale}/recipes', params: { locale: currentLocale === 'en' ? undefined : currentLocale } })
         },
       })
     }
@@ -114,7 +114,7 @@ function RecipeDetail() {
           <div className="mt-4">
             <Button asChild variant="ghost">
               <Link
-                to="/{-$locale}"
+                to="/{-$locale}/recipes"
                 params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
               >
                 ← {t('recipe.backToRecipes')}
@@ -132,7 +132,7 @@ function RecipeDetail() {
         <div className="mb-6">
           <Button asChild variant="ghost" className="mb-4">
             <Link
-              to="/{-$locale}"
+              to="/{-$locale}/recipes"
               params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
             >
               ← {t('recipe.backToRecipes')}

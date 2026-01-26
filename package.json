@@ -20,7 +20,7 @@
     "db:logs": "docker-compose logs -f postgres",
     "db:reset": "drizzle-kit drop && drizzle-kit migrate",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "icons:generate": "node scripts/generate-icons.js"
