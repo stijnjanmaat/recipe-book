@@ -139,5 +139,34 @@
     "title": "Pagina Niet Gevonden",
     "description": "De pagina die u zoekt bestaat niet of is verplaatst.",
     "backToHome": "Terug naar Home"
+  },
+  "homepage": {
+    "title": "Receptenboek",
+    "subtitle": "Uw intelligente receptenverzameling aangedreven door AI",
+    "features": {
+      "imageExtraction": {
+        "title": "Extraheer uit Afbeeldingen",
+        "description": "Upload foto's, screenshots of afbeeldingen van recepten en laat AI automatisch alle details extraheren."
+      },
+      "urlExtraction": {
+        "title": "Extraheer uit URL's",
+        "description": "Plak gewoon een recept-URL en onze AI haalt de receptinformatie van de webpagina."
+      },
+      "aiPowered": {
+        "title": "AI-Aangedreven",
+        "description": "Aangedreven door geavanceerde AI om nauwkeurig ingrediënten, instructies en kookdetails uit elke bron te extraheren."
+      },
+      "organized": {
+        "title": "Georganiseerde Verzameling",
+        "description": "Beheer uw recepten met zoeken, tags en filters. Schaal ingrediënten, bewerk details en houd alles georganiseerd."
+      }
+    },
+    "cta": {
+      "loggedIn": "Klaar om uw recepten te beheren?",
+      "loggedOut": "Log in om te beginnen met het opbouwen van uw receptenverzameling",
+      "viewRecipes": "Bekijk Recepten",
+      "addRecipe": "Recept Toevoegen",
+      "signIn": "Inloggen"
+    }
   }
 }

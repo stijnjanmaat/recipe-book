@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useParams } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
-import { RecipeTable } from '~/components/RecipeTable'
 import { Button } from '~/components/ui/button'
-import { authMiddleware } from '~/middleware/auth'
+import { Card, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import { useAuth } from '~/hooks/useAuth'
 
 export const Route = createFileRoute('/{-$locale}/')({
   beforeLoad: async ({ location }) => {
@@ -12,7 +12,6 @@ export const Route = createFileRoute('/{-$locale}/')({
     // CRITICAL: Set i18n locale synchronously before any components render
     // This ensures SSR and client render with the same language
     await ensureI18nInitialized(locale)
-    
   
     return { locale }
   },
@@ -23,34 +22,109 @@ export const Route = createFileRoute('/{-$locale}/')({
     return { locale }
   },
   component: IndexComponent,
-  server: {
-    middleware: [authMiddleware],
-  }
 })
 
-function IndexComponent() {
+export function IndexComponent() {
   const { t } = useTranslation()
-  // Get locale from URL params
   const allParams = useParams({ strict: false })
   const currentLocale = allParams.locale || 'en'
+  const { isAuthenticated, isSuperadmin } = useAuth()
 
   return (
-    <div className="px-4 py-6 sm:px-0">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('recipes.title')}</h1>
-          <p className="mt-1 text-sm text-gray-600">{t('recipes.description')}</p>
+    <div className="px-4 py-12 sm:px-0">
+      <div className="max-w-4xl mx-auto">
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+            {t('homepage.title')}
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            {t('homepage.subtitle')}
+          </p>
         </div>
-        <Button asChild>
-          <Link
-            to="/{-$locale}/add/image"
-            params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
-          >
-            {t('nav.addRecipe')}
-          </Link>
-        </Button>
+
+        {/* Features Grid */}
+        <div className="grid md:grid-cols-2 gap-6 mb-12">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('homepage.features.imageExtraction.title')}</CardTitle>
+              <CardDescription>
+                {t('homepage.features.imageExtraction.description')}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('homepage.features.urlExtraction.title')}</CardTitle>
+              <CardDescription>
+                {t('homepage.features.urlExtraction.description')}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('homepage.features.aiPowered.title')}</CardTitle>
+              <CardDescription>
+                {t('homepage.features.aiPowered.description')}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('homepage.features.organized.title')}</CardTitle>
+              <CardDescription>
+                {t('homepage.features.organized.description')}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+
+        {/* Call to Action */}
+        <div className="text-center">
+          {isAuthenticated && isSuperadmin ? (
+            <div className="space-y-4">
+              <p className="text-muted-foreground mb-4">
+                {t('homepage.cta.loggedIn')}
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Button asChild size="lg">
+                  <Link
+                    to="/{-$locale}/recipes"
+                    params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
+                  >
+                    {t('homepage.cta.viewRecipes')}
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg">
+                  <Link
+                    to="/{-$locale}/add/image"
+                    params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
+                  >
+                    {t('homepage.cta.addRecipe')}
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-muted-foreground mb-4">
+                {t('homepage.cta.loggedOut')}
+              </p>
+              <Button asChild size="lg">
+                <Link
+                  to="/{-$locale}/login"
+                  params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
+                >
+                  {t('homepage.cta.signIn')}
+                </Link>
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
-      <RecipeTable />
     </div>
   )
 }

@@ -6,8 +6,16 @@ import { useExtractRecipeFromImage } from '~/hooks/useRecipes'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
 import { Card } from '~/components/ui/card'
 import { authMiddleware } from '~/middleware/auth'
+import { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
+import { checkClientAuth } from '~/lib/auth/route-protection'
 
 export const Route = createFileRoute('/{-$locale}/add/image')({
+  beforeLoad: async ({ location }) => {
+    const locale = detectLocaleFromPath(location.pathname)
+    await ensureI18nInitialized(locale)
+    await checkClientAuth(locale)
+    return { locale }
+  },
   server: {
     middleware: [authMiddleware],
   },

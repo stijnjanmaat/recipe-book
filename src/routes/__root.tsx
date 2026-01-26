@@ -5,10 +5,9 @@ import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '~/components/LanguageSwitcher'
 import i18n, { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
 import { Button } from '~/components/ui/button'
-import { getSession } from '~/lib/auth/functions'
-import { useQuery } from '@tanstack/react-query'
 import { authClient } from '~/lib/auth-client'
 import { useNavigate } from '@tanstack/react-router'
+import { useAuth } from '~/hooks/useAuth'
 import '../app.css'
 
 const queryClient = new QueryClient()
@@ -84,6 +83,7 @@ export const Route = createRootRoute({
     ],
   }),
   component: RootComponent,
+  notFoundComponent: () => <>asdsa</>,
 })
 
 function RootComponent() {
@@ -118,23 +118,31 @@ function NavWithSession({ locale }: { locale: string }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   
-  // Now we're inside QueryClientProvider, so useQuery will work
-  const { data: session } = useQuery({
-    queryKey: ['session'],
-    queryFn: async () => {
-      try {
-        return await getSession()
-      } catch {
-        return null
-      }
-    },
-  })
+  // Use the auth hook to check session and superadmin role
+  const { session, isAuthenticated, isSuperadmin } = useAuth()
 
   const handleSignOut = async () => {
     try {
       await authClient.signOut()
-      // Invalidate session query to update UI
-      await queryClient.invalidateQueries({ queryKey: ['session'] })
+      
+      // Clear all React Query cache
+      queryClient.clear()
+      
+      // Clear any localStorage/sessionStorage related to auth
+      if (typeof window !== 'undefined') {
+        // Clear any Better Auth related storage
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('better-auth') || key.startsWith('auth')) {
+            localStorage.removeItem(key)
+          }
+        })
+        Object.keys(sessionStorage).forEach(key => {
+          if (key.startsWith('better-auth') || key.startsWith('auth')) {
+            sessionStorage.removeItem(key)
+          }
+        })
+      }
+      
       // Redirect to login page
       navigate({
         to: '/{-$locale}/login',
@@ -143,8 +151,13 @@ function NavWithSession({ locale }: { locale: string }) {
       })
     } catch (error) {
       console.error('Sign out error:', error)
-      // Fallback to page reload if sign out fails
-      window.location.href = '/api/auth/sign-out'
+      // On error, clear everything and force reload
+      queryClient.clear()
+      if (typeof window !== 'undefined') {
+        localStorage.clear()
+        sessionStorage.clear()
+      }
+      window.location.href = '/{-$locale}/login'
     }
   }
 
@@ -162,29 +175,40 @@ function NavWithSession({ locale }: { locale: string }) {
                 {t('nav.appName')}
               </Link>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-2">
-              <Button asChild variant="ghost">
-                <Link
-                  to="/{-$locale}"
-                  params={{ locale: locale === 'en' ? undefined : locale }}
-                >
-                  {t('nav.recipes')}
-                </Link>
-              </Button>
-              <Button asChild variant="ghost">
-                <Link
-                  to="/{-$locale}/add/image"
-                  params={{ locale: locale === 'en' ? undefined : locale }}
-                >
-                  {t('nav.addRecipe')}
-                </Link>
-              </Button>
-            </div>
+            {isAuthenticated && isSuperadmin && (
+              <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-2">
+                <Button asChild variant="ghost">
+                  <Link
+                    to="/{-$locale}/recipes"
+                    params={{ locale: locale === 'en' ? undefined : locale }}
+                  >
+                    {t('nav.recipes')}
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost">
+                  <Link
+                    to="/{-$locale}/add/image"
+                    params={{ locale: locale === 'en' ? undefined : locale }}
+                  >
+                    {t('nav.addRecipe')}
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
-            {session?.user && (
+            {isAuthenticated ? (
               <Button variant="ghost" onClick={handleSignOut}>
                 {t('auth.signOut')}
+              </Button>
+            ) : (
+              <Button asChild variant="ghost">
+                <Link
+                  to="/{-$locale}/login"
+                  params={{ locale: locale === 'en' ? undefined : locale }}
+                >
+                  {t('auth.signIn')}
+                </Link>
               </Button>
             )}
             <LanguageSwitcher />

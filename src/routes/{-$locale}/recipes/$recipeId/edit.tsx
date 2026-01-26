@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Alert, AlertDescription } from '~/components/ui/alert'
 import { Checkbox } from '~/components/ui/checkbox'
 import { authMiddleware } from '~/middleware/auth'
+import { useAuth } from '~/hooks/useAuth'
 
 export const Route = createFileRoute('/{-$locale}/recipes/$recipeId/edit')({
   server: {
@@ -22,12 +23,13 @@ export const Route = createFileRoute('/{-$locale}/recipes/$recipeId/edit')({
 
 function EditRecipe() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const params = Route.useParams()
   const recipeId = params.recipeId
   // Get locale from URL params (inherited from parent route)
   const allParams = useParams({ strict: false })
   const currentLocale = allParams.locale || 'en'
-  const navigate = useNavigate()
+  
   const { data: recipe, isLoading, isError } = useRecipe(Number(recipeId))
   const updateRecipe = useUpdateRecipe()
 

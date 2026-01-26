@@ -10,8 +10,16 @@ import { Label } from '~/components/ui/label'
 import { interpolateIngredients } from '~/lib/utils/ingredient-interpolation'
 import { scaleIngredients } from '~/lib/utils/scale-ingredients'
 import { authMiddleware } from '~/middleware/auth'
+import { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
+import { checkClientAuth } from '~/lib/auth/route-protection'
 
 export const Route = createFileRoute('/{-$locale}/recipes/$recipeId/')({
+  beforeLoad: async ({ location }) => {
+    const locale = detectLocaleFromPath(location.pathname)
+    await ensureI18nInitialized(locale)
+    await checkClientAuth(locale)
+    return { locale }
+  },
   server: {
     middleware: [authMiddleware],
   },
@@ -20,12 +28,13 @@ export const Route = createFileRoute('/{-$locale}/recipes/$recipeId/')({
 
 function RecipeDetail() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const params = Route.useParams()
   const recipeId = params.recipeId
   // Get locale from URL params (inherited from parent route)
   const allParams = useParams({ strict: false })
   const currentLocale = allParams.locale || 'en'
-  const navigate = useNavigate()
+  
   const { data: recipe, isLoading, isError, error } = useRecipe(Number(recipeId))
   const deleteRecipe = useDeleteRecipe()
   

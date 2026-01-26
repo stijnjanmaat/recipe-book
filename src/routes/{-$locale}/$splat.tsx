@@ -4,7 +4,7 @@ import { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 
-export const Route = createFileRoute('/{-$locale}/$')({
+export const Route = createFileRoute('/{-$locale}/$splat')({
   beforeLoad: async ({ location }) => {
     const locale = detectLocaleFromPath(location.pathname)
     await ensureI18nInitialized(locale)

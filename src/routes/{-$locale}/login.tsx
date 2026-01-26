@@ -4,10 +4,9 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Alert, AlertDescription } from '~/components/ui/alert'
 import { useState, useEffect } from 'react'
-import { getSession } from '~/lib/auth/functions'
-import { useQuery } from '@tanstack/react-query'
-import { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
+import { ensureI18nInitialized } from '~/lib/i18n/config'
 import { authClient } from '~/lib/auth-client'
+import { useAuth } from '~/hooks/useAuth'
 
 export const Route = createFileRoute('/{-$locale}/login')({
   beforeLoad: async ({ location }) => {
@@ -33,28 +32,19 @@ function LoginComponent() {
   const allParams = useParams({ strict: false })
   const currentLocale = allParams.locale || 'en'
 
-  // Check if user is already logged in
-  const { data: session } = useQuery({
-    queryKey: ['session'],
-    queryFn: async () => {
-      try {
-        return await getSession()
-      } catch (err) {
-        return null
-      }
-    },
-  })
+  // Check if user is already logged in and is superadmin
+  const { isAuthenticated, isSuperadmin } = useAuth()
 
-  // Redirect if already logged in
+  // Redirect if already logged in as superadmin
   useEffect(() => {
-    if (session?.user) {
+    if (isAuthenticated && isSuperadmin) {
       navigate({
         to: '/{-$locale}',
         params: { locale: currentLocale === 'en' ? undefined : currentLocale },
         replace: true,
       })
     }
-  }, [session, navigate, currentLocale])
+  }, [isAuthenticated, isSuperadmin, navigate, currentLocale])
 
   const handleGoogleSignIn = async () => {
     setError(null)
@@ -62,6 +52,7 @@ function LoginComponent() {
       // Use Better Auth client to sign in with Google
       await authClient.signIn.social({
         provider: 'google',
+        callbackURL: `/${currentLocale}/recipes`,
       })
       // The redirect will happen automatically via Better Auth
     } catch (err) {

@@ -139,5 +139,34 @@
     "title": "Page Not Found",
     "description": "The page you're looking for doesn't exist or has been moved.",
     "backToHome": "Back to Home"
+  },
+  "homepage": {
+    "title": "Recipe Book",
+    "subtitle": "Your intelligent recipe collection powered by AI",
+    "features": {
+      "imageExtraction": {
+        "title": "Extract from Images",
+        "description": "Upload photos, screenshots, or images of recipes and let AI extract all the details automatically."
+      },
+      "urlExtraction": {
+        "title": "Extract from URLs",
+        "description": "Simply paste a recipe URL and our AI will extract the recipe information from the webpage."
+      },
+      "aiPowered": {
+        "title": "AI-Powered",
+        "description": "Powered by advanced AI to accurately extract ingredients, instructions, and cooking details from any source."
+      },
+      "organized": {
+        "title": "Organized Collection",
+        "description": "Manage your recipes with search, tags, and filters. Scale ingredients, edit details, and keep everything organized."
+      }
+    },
+    "cta": {
+      "loggedIn": "Ready to manage your recipes?",
+      "loggedOut": "Sign in to start building your recipe collection",
+      "viewRecipes": "View Recipes",
+      "addRecipe": "Add Recipe",
+      "signIn": "Sign In"
+    }
   }
 }
