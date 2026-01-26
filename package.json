@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsr generate && tsc && vite build",
+    "build:prod": "pnpm db:migrate && pnpm build",
     "preview": "vite preview",
     "start": "vite",
     "tsr:generate": "tsr generate",
@@ -17,6 +18,7 @@
     "db:up": "docker-compose up -d",
     "db:down": "docker-compose down",
     "db:logs": "docker-compose logs -f postgres",
+    "db:reset": "drizzle-kit drop && drizzle-kit migrate",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
