@@ -1,1 +1,0 @@
-ALTER TABLE "recipes" ADD COLUMN "servings_relevant" integer DEFAULT 1;

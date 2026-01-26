@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
 import { RecipeTable } from '~/components/RecipeTable'
 import { Button } from '~/components/ui/button'
+import { authMiddleware } from '~/middleware/auth'
 
 export const Route = createFileRoute('/{-$locale}/')({
   beforeLoad: async ({ location }) => {
@@ -12,15 +13,19 @@ export const Route = createFileRoute('/{-$locale}/')({
     // This ensures SSR and client render with the same language
     await ensureI18nInitialized(locale)
     
+  
     return { locale }
   },
   loader: async ({ location }) => {
     const locale = detectLocaleFromPath(location.pathname)
     await ensureI18nInitialized(locale)
-    
+        
     return { locale }
   },
   component: IndexComponent,
+  server: {
+    middleware: [authMiddleware],
+  }
 })
 
 function IndexComponent() {

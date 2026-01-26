@@ -125,5 +125,19 @@
     "errorLoading": "Fout bij het laden van recept",
     "notFound": "Recept niet gevonden",
     "submitError": "Fout bij het bijwerken van recept"
+  },
+  "auth": {
+    "signIn": "Inloggen",
+    "signInWithGoogle": "Inloggen met Google",
+    "signInHint": "Alleen geautoriseerde superadmins hebben toegang tot deze applicatie",
+    "signOut": "Uitloggen",
+    "unauthorized": "Niet geautoriseerd",
+    "unauthorizedMessage": "U moet ingelogd zijn als superadmin om deze pagina te kunnen bekijken",
+    "redirecting": "Doorverwijzen naar login..."
+  },
+  "notFound": {
+    "title": "Pagina Niet Gevonden",
+    "description": "De pagina die u zoekt bestaat niet of is verplaatst.",
+    "backToHome": "Terug naar Home"
   }
 }

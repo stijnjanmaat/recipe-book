@@ -8,11 +8,15 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Textarea } from '~/components/ui/textarea'
 import { Label } from '~/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Alert, AlertDescription } from '~/components/ui/alert'
 import { Checkbox } from '~/components/ui/checkbox'
+import { authMiddleware } from '~/middleware/auth'
 
 export const Route = createFileRoute('/{-$locale}/recipes/$recipeId/edit')({
+  server: {
+    middleware: [authMiddleware],
+  },
   component: EditRecipe,
 })
 

@@ -5,19 +5,23 @@
  */
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
+import { authMiddleware } from '~/middleware/auth'
 import { CreateRecipeSchema, UpdateRecipeSchema } from '~/types/recipe'
 
 // Server-only code is imported inside handlers, not at top level
 // This ensures it's not bundled for the client
 
 // Get all recipes
-export const getRecipes = createServerFn({ method: 'GET' }).handler(async () => {
-  const recipeServer = await import('./recipes.server')
-  return recipeServer.getAllRecipes()
-})
+export const getRecipes = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])  
+  .handler(async () => {
+    const recipeServer = await import('./recipes.server')
+    return recipeServer.getAllRecipes()
+  })
 
 // Get single recipe
 export const getRecipe = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])  
   .inputValidator(z.object({ id: z.number() }))
   .handler(async ({ data }) => {
     const recipeServer = await import('./recipes.server')
@@ -30,6 +34,7 @@ export const getRecipe = createServerFn({ method: 'GET' })
 
 // Create recipe
 export const createRecipe = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])  
   .inputValidator(CreateRecipeSchema)
   .handler(async ({ data }) => {
     const recipeServer = await import('./recipes.server')
@@ -38,6 +43,7 @@ export const createRecipe = createServerFn({ method: 'POST' })
 
 // Update recipe
 export const updateRecipe = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])  
   .inputValidator(
     z.object({
       id: z.number(),
@@ -55,6 +61,7 @@ export const updateRecipe = createServerFn({ method: 'POST' })
 
 // Delete recipe
 export const deleteRecipe = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
   .inputValidator(z.object({ id: z.number() }))
   .handler(async ({ data }) => {
     const recipeServer = await import('./recipes.server')
@@ -67,6 +74,7 @@ export const deleteRecipe = createServerFn({ method: 'POST' })
 
 // Extract recipe from image
 export const extractRecipeFromImageFile = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])  
   .inputValidator((data) => {
     if (!(data instanceof FormData)) {
       throw new Error('Expected FormData')
@@ -106,6 +114,7 @@ export const extractRecipeFromImageFile = createServerFn({ method: 'POST' })
 
 // Extract recipe from URL
 export const extractRecipeFromUrlString = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])  
   .inputValidator(
     z.object({
       url: z.string().url(),

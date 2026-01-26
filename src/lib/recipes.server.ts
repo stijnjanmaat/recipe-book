@@ -7,7 +7,6 @@ import type { z } from 'zod'
 import { recipes, ingredients, instructions } from '~/db/schema'
 import { eq } from 'drizzle-orm'
 import { CreateRecipeSchema, UpdateRecipeSchema } from '~/types/recipe'
-import type { Recipe } from '~/types/recipe'
 
 export async function getAllRecipes() {
   const recipesList = await db.query.recipes.findMany({

@@ -5,10 +5,14 @@ import { useExtractRecipeFromUrl } from '~/hooks/useRecipes'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import { Card } from '~/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
+import { authMiddleware } from '~/middleware/auth'
 
 export const Route = createFileRoute('/{-$locale}/add/url')({
+  server: {
+    middleware: [authMiddleware],
+  },
   component: AddRecipeFromUrl,
 })
 

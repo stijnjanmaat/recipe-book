@@ -5,8 +5,12 @@ import { useDropzone } from 'react-dropzone'
 import { useExtractRecipeFromImage } from '~/hooks/useRecipes'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
 import { Card } from '~/components/ui/card'
+import { authMiddleware } from '~/middleware/auth'
 
 export const Route = createFileRoute('/{-$locale}/add/image')({
+  server: {
+    middleware: [authMiddleware],
+  },
   component: AddRecipeFromImage,
 })
 

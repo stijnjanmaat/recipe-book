@@ -125,5 +125,19 @@
     "errorLoading": "Error loading recipe",
     "notFound": "Recipe not found",
     "submitError": "Failed to update recipe"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signInWithGoogle": "Sign in with Google",
+    "signInHint": "Only authorized superadmins can access this application",
+    "signOut": "Sign Out",
+    "unauthorized": "Unauthorized",
+    "unauthorizedMessage": "You must be signed in as a superadmin to access this page",
+    "redirecting": "Redirecting to login..."
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backToHome": "Back to Home"
   }
 }

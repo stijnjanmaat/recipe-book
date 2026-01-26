@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1768551064426,
-      "tag": "0000_ancient_hydra",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1768681451567,
-      "tag": "0001_solid_vengeance",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1768851447202,
-      "tag": "0002_warm_jean_grey",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1769102769298,
-      "tag": "0003_sweet_sheva_callister",
+      "when": 1769368553978,
+      "tag": "0000_odd_giant_girl",
       "breakpoints": true
     }
   ]

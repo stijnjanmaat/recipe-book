@@ -72,7 +72,7 @@ pnpm db:push
 pnpm dev
 ```
 
-The app will be available at `http://localhost:5173` (or the port Vite assigns).
+The app will be available at `http://localhost:3000` (or the port Vite assigns).
 
 ## Database Commands
 

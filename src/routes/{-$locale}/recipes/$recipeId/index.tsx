@@ -9,8 +9,12 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { interpolateIngredients } from '~/lib/utils/ingredient-interpolation'
 import { scaleIngredients } from '~/lib/utils/scale-ingredients'
+import { authMiddleware } from '~/middleware/auth'
 
 export const Route = createFileRoute('/{-$locale}/recipes/$recipeId/')({
+  server: {
+    middleware: [authMiddleware],
+  },
   component: RecipeDetail,
 })
 
