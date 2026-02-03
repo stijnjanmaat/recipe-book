@@ -20,7 +20,11 @@
     "notes": "Opmerkingen",
     "instruction": "Instructie",
     "imageUrl": "Afbeelding URL",
-    "identifier": "ID"
+    "identifier": "ID",
+    "english": "Engels",
+    "dutch": "Nederlands",
+    "metric": "Metrisch",
+    "imperial": "Imperiaal"
   },
   "nav": {
     "appName": "Receptenboek",
@@ -97,7 +101,9 @@
     "errorExtracting": "Er is een fout opgetreden bij het extraheren van het recept. Probeer het opnieuw.",
     "switchToUrl": "Liever toevoegen via een URL?",
     "switchToImage": "Liever toevoegen via een afbeelding?",
-    "extractButton": "Recept extraheren"
+    "extractButton": "Recept extraheren",
+    "outputLanguage": "Uitvoer taal",
+    "measurementSystem": "Meet systeem"
   },
   "editRecipe": {
     "title": "Recept Bewerken",

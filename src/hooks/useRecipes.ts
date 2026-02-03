@@ -73,9 +73,11 @@ export function useExtractRecipeFromImage() {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: (imageFile: File) => {
+    mutationFn: ({ imageFile, outputLanguage, measurementSystem }: { imageFile: File; outputLanguage: string; measurementSystem: string }) => {
       const formData = new FormData()
       formData.append('image', imageFile)
+      formData.append('outputLanguage', outputLanguage)
+      formData.append('measurementSystem', measurementSystem)
       return extractRecipeFromImageFile({ data: formData })
     },
     onSuccess: (recipe) => {
@@ -92,7 +94,8 @@ export function useExtractRecipeFromUrl() {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: (url: string) => extractRecipeFromUrlString({ data: { url } }),
+    mutationFn: ({ url, outputLanguage, measurementSystem }: { url: string; outputLanguage: string; measurementSystem: string }) => 
+      extractRecipeFromUrlString({ data: { url, outputLanguage, measurementSystem } }),
     onSuccess: (recipe) => {
       if (!recipe) return
       // Invalidate recipes list and add the new recipe to cache

@@ -5,6 +5,13 @@ import { useExtractRecipeFromUrl } from '~/hooks/useRecipes'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 import { Card } from '~/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
 import { authMiddleware } from '~/middleware/auth'
@@ -31,12 +38,20 @@ function AddRecipeFromUrl() {
   const allParams = useParams({ strict: false })
   const currentLocale = allParams.locale || 'en'
   const [url, setUrl] = useState('')
+  const [extraOptions, setExtraOptions] = useState({
+    outputLanguage: 'en',
+    measurementSystem: 'metric'
+  })
   const extractRecipe = useExtractRecipeFromUrl()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (url.trim()) {
-      extractRecipe.mutate(url.trim(), {
+      extractRecipe.mutate({
+        url: url.trim(),
+        outputLanguage: extraOptions.outputLanguage,
+        measurementSystem: extraOptions.measurementSystem,
+      }, {
         onSuccess: (recipe) => {
           if (!recipe) return
           
@@ -82,6 +97,47 @@ function AddRecipeFromUrl() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+            
+            <div className="space-y-2 flex flex-row gap-2">
+            <div className="space-y-2 flex flex-col gap-2">
+            <Label htmlFor="outputLanguage">
+              {t('addRecipe.outputLanguage')}
+            </Label>
+            <Select
+              value={extraOptions.outputLanguage}
+              onValueChange={(value: string) => setExtraOptions({ ...extraOptions, outputLanguage: value })}
+              disabled={extractRecipe.isPending}
+            >
+              <SelectTrigger id="outputLanguage">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">{t('common.english')}</SelectItem>
+                <SelectItem value="nl">{t('common.dutch')}</SelectItem>
+              </SelectContent>
+            </Select>
+            </div>
+            <div className="space-y-2 flex flex-col gap-2">
+            <Label htmlFor="measurementSystem">
+              {t('addRecipe.measurementSystem')}
+            </Label>
+            <Select
+              value={extraOptions.measurementSystem}
+              onValueChange={(value: string) => setExtraOptions({ ...extraOptions, measurementSystem: value })}
+              disabled={extractRecipe.isPending}
+            >
+              <SelectTrigger id="measurementSystem">
+                <SelectValue placeholder="Select measurement system" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="metric">{t('common.metric')}</SelectItem>
+                <SelectItem value="imperial">{t('common.imperial')}</SelectItem>
+              </SelectContent>
+            </Select>
+            </div>
+          </div>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="url">
               {t('addRecipe.fromUrl')}
@@ -96,6 +152,8 @@ function AddRecipeFromUrl() {
               required
             />
           </div>
+
+          
 
           {extractRecipe.isPending ? (
             <Card className="flex items-center justify-center py-8">
