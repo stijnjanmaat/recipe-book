@@ -2,5 +2,10 @@
   "installCommand": "pnpm install",
   "buildCommand": "pnpm build:prod",
   "devCommand": "pnpm dev",
-  "outputDirectory": ".output"
+  "outputDirectory": ".output",
+  "git": {
+    "deploymentEnabled": {
+      "main": false
+    }
+  }
 }
