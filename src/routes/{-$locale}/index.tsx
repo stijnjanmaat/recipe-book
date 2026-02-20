@@ -100,7 +100,7 @@ export function IndexComponent() {
                 </Button>
                 <Button asChild variant="outline" size="lg">
                   <Link
-                    to="/{-$locale}/add/image"
+                    to="/{-$locale}/add"
                     params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
                   >
                     {t('homepage.cta.addRecipe')}

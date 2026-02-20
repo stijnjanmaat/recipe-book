@@ -12,6 +12,7 @@ import {
 import { useState } from 'react'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
+import { MoreVertical, Eye, Pencil, Trash2, Plus } from 'lucide-react'
 import { useRecipes, useDeleteRecipe } from '~/hooks/useRecipes'
 import type { Recipe } from '~/types/recipe'
 import { detectLocaleFromPath } from '~/lib/i18n/config'
@@ -27,6 +28,12 @@ import { Input } from '~/components/ui/input'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
 import { Alert, AlertDescription } from '~/components/ui/alert'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu'
 
 // Type for recipe with database fields and relations
 type RecipeWithId = Recipe & {
@@ -182,7 +189,7 @@ export function RecipeTable() {
       id: 'actions',
       header: t('recipes.table.actions'),
       cell: ({ row }) => (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Button asChild variant="ghost" size="sm">
             <Link
               to="/{-$locale}/recipes/$recipeId"
@@ -191,7 +198,8 @@ export function RecipeTable() {
                 locale: currentLocale === 'en' ? undefined : currentLocale
               }}
             >
-              {t('recipes.view')}
+              <Eye className="size-4 md:mr-1.5" />
+              <span className="hidden md:inline">{t('recipes.view')}</span>
             </Link>
           </Button>
           <Button
@@ -206,7 +214,8 @@ export function RecipeTable() {
             disabled={deleteRecipe.isPending}
             className="text-destructive hover:text-destructive"
           >
-            {deleteRecipe.isPending ? t('recipes.deleting') : t('common.delete')}
+            <Trash2 className="size-4 md:mr-1.5" />
+            <span className="hidden md:inline">{deleteRecipe.isPending ? t('recipes.deleting') : t('common.delete')}</span>
           </Button>
         </div>
       ),
@@ -299,25 +308,104 @@ export function RecipeTable() {
     )
   }
 
+  const rows = table.getRowModel().rows
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Search and filters */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
         <Input
           type="text"
           placeholder={t('recipes.search')}
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
-          className="max-w-sm"
+          className="w-full max-w-sm"
         />
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground shrink-0">
           {table.getFilteredRowModel().rows.length}{' '}
           {table.getFilteredRowModel().rows.length !== 1 ? t('recipes.table.recipes') : t('recipes.table.recipe')}
         </div>
       </div>
 
-      {/* Table */}
-      <Card>
+      {/* Mobile card list */}
+      <div className="md:hidden space-y-1.5">
+        {rows.length === 0 ? (
+          <p className="text-center py-6 text-muted-foreground text-sm">{t('recipes.noRecipes')}</p>
+        ) : (
+          rows.map((row) => {
+            const r = row.original
+            const imageUrl = r.imageBlobUrl || r.sourceImageUrl
+            return (
+              <Card
+                key={row.id}
+                variant="compact"
+                className="overflow-hidden transition-colors active:bg-muted/50"
+              >
+                <div
+                  className="flex gap-2 p-2"
+                  onClick={() => navigate({ to: '/{-$locale}/recipes/$recipeId', params: { recipeId: r.id.toString(), locale: currentLocale === 'en' ? undefined : currentLocale } })}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget as HTMLElement).click()}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="shrink-0 w-14 h-14 rounded overflow-hidden bg-muted">
+                    {imageUrl ? (
+                      <img src={imageUrl} alt={r.title} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">{t('recipes.table.noImage')}</div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 py-0.5">
+                    <h3 className="font-semibold text-foreground text-sm truncate">{r.title}</h3>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{r.description || '-'}</p>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="shrink-0 size-8 p-0"
+                        onClick={(e) => e.stopPropagation()}
+                        aria-label={t('recipes.table.actions')}
+                      >
+                        <MoreVertical className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenuItem asChild>
+                        <Link to="/{-$locale}/recipes/$recipeId" params={{ recipeId: r.id.toString(), locale: currentLocale === 'en' ? undefined : currentLocale }} onClick={(e) => e.stopPropagation()}>
+                          <Eye className="size-4 mr-2" />
+                          {t('recipes.view')}
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/{-$locale}/recipes/$recipeId/edit" params={{ recipeId: r.id.toString(), locale: currentLocale === 'en' ? undefined : currentLocale }} onClick={(e) => e.stopPropagation()}>
+                          <Pencil className="size-4 mr-2" />
+                          {t('common.edit')}
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (confirm(t('recipes.deleteConfirm', { title: r.title }))) deleteRecipe.mutate(r.id)
+                        }}
+                        disabled={deleteRecipe.isPending}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="size-4 mr-2" />
+                        {deleteRecipe.isPending ? t('recipes.deleting') : t('common.delete')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </Card>
+            )
+          })
+        )}
+      </div>
+
+      {/* Desktop table */}
+      <Card className="hidden md:block">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -393,53 +481,52 @@ export function RecipeTable() {
             )}
           </TableBody>
         </Table>
-
-        {/* Pagination */}
-        {table.getPageCount() > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t">
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
-                variant="outline"
-                size="sm"
-              >
-                {t('recipes.table.first')}
-              </Button>
-              <Button
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-                variant="outline"
-                size="sm"
-              >
-                {t('recipes.table.previous')}
-              </Button>
-              <Button
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-                variant="outline"
-                size="sm"
-              >
-                {t('recipes.table.next')}
-              </Button>
-              <Button
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
-                variant="outline"
-                size="sm"
-              >
-                {t('recipes.table.last')}
-              </Button>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {t('recipes.table.page')}{' '}
-              <strong>
-                {table.getState().pagination.pageIndex + 1} {t('recipes.table.of')} {table.getPageCount()}
-              </strong>
-            </div>
-          </div>
-        )}
       </Card>
+
+      {/* Pagination - shared for mobile cards and desktop table */}
+      {table.getPageCount() > 1 && (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-1 py-3">
+          <div className="flex items-center justify-center gap-2 sm:justify-start flex-wrap">
+            <Button
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+              variant="outline"
+              size="sm"
+              className="hidden sm:flex"
+            >
+              {t('recipes.table.first')}
+            </Button>
+            <Button
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              variant="outline"
+              size="sm"
+            >
+              {t('recipes.table.previous')}
+            </Button>
+            <span className="text-sm text-muted-foreground px-2">
+              {t('recipes.table.page')} <strong>{table.getState().pagination.pageIndex + 1}</strong> {t('recipes.table.of')} {table.getPageCount()}
+            </span>
+            <Button
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              variant="outline"
+              size="sm"
+            >
+              {t('recipes.table.next')}
+            </Button>
+            <Button
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+              variant="outline"
+              size="sm"
+              className="hidden sm:flex"
+            >
+              {t('recipes.table.last')}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

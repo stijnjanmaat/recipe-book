@@ -90,6 +90,7 @@
     "imageHint": "(e.g., photo of a recipe, screenshot)",
     "imageFormats": "Supported formats: PNG, JPG, JPEG, GIF, WEBP",
     "imageReplace": "Click to replace image",
+    "url": "URL",
     "urlPlaceholder": "e.g., https://www.allrecipes.com/recipe/...",
     "extracting": "Extracting recipe... This might take a moment.",
     "extractingMoment": "Please wait while we process your recipe",
@@ -138,7 +139,9 @@
   "notFound": {
     "title": "Page Not Found",
     "description": "The page you're looking for doesn't exist or has been moved.",
-    "backToHome": "Back to Home"
+    "culinaryTagline": "This one got lost in the kitchen.",
+    "backToHome": "Back to Home",
+    "backToRecipes": "Back to Recipes"
   },
   "homepage": {
     "title": "Recipe Book",

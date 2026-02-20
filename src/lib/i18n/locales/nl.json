@@ -90,6 +90,7 @@
     "imageHint": "(bijv. foto van een recept, screenshot)",
     "imageFormats": "Ondersteunde formaten: PNG, JPG, JPEG, GIF, WEBP",
     "imageReplace": "Klik om afbeelding te vervangen",
+    "url": "URL",
     "urlPlaceholder": "bijv. https://www.allrecipes.com/recipe/...",
     "extracting": "Recept extraheren... Dit kan even duren.",
     "extractingMoment": "Even geduld terwijl we uw recept verwerken",
@@ -138,7 +139,9 @@
   "notFound": {
     "title": "Pagina Niet Gevonden",
     "description": "De pagina die u zoekt bestaat niet of is verplaatst.",
-    "backToHome": "Terug naar Home"
+    "culinaryTagline": "Dit recept is in de keuken zoekgeraakt.",
+    "backToHome": "Terug naar Home",
+    "backToRecipes": "Terug naar Recepten"
   },
   "homepage": {
     "title": "Receptenboek",
