@@ -35,6 +35,7 @@
     "title": "Recepten",
     "description": "Beheer uw receptenverzameling",
     "noRecipes": "Geen recepten gevonden. Voeg uw eerste recept toe om te beginnen!",
+    "noFilterResults": "Geen recepten gevonden voor deze zoekopdracht.",
     "loading": "Recepten laden...",
     "error": "Fout bij het laden van recepten",
     "search": "Zoek recepten...",

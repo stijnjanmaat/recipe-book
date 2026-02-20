@@ -35,6 +35,7 @@
     "title": "Recipes",
     "description": "Manage your recipe collection",
     "noRecipes": "No recipes found. Add your first recipe to get started!",
+    "noFilterResults": "No recipes match your search.",
     "loading": "Loading recipes...",
     "error": "Error loading recipes",
     "search": "Search recipes...",

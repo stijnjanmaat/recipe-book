@@ -12,8 +12,8 @@ import {
 import { useState } from 'react'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { MoreVertical, Eye, Pencil, Trash2, Clock, Flame, ChefHat, Users, UtensilsCrossed } from 'lucide-react'
-import { useRecipes, useDeleteRecipe } from '~/hooks/useRecipes'
+import { MoreVertical, Eye, Pencil, Clock, Flame, ChefHat, Users, UtensilsCrossed } from 'lucide-react'
+import { useRecipes } from '~/hooks/useRecipes'
 import type { Recipe } from '~/types/recipe'
 import { detectLocaleFromPath } from '~/lib/i18n/config'
 import { Input } from '~/components/ui/input'
@@ -69,7 +69,6 @@ export function RecipeTable() {
   const [globalFilter, setGlobalFilter] = useState('')
 
   const { data: recipes = [], isLoading, error } = useRecipes()
-  const deleteRecipe = useDeleteRecipe()
 
   const columns: ColumnDef<RecipeWithId>[] = [
     {
@@ -202,21 +201,6 @@ export function RecipeTable() {
               <span className="hidden md:inline">{t('recipes.view')}</span>
             </Link>
           </Button>
-          <Button
-            onClick={(e) => {
-              e.stopPropagation()
-              if (confirm(t('recipes.deleteConfirm', { title: row.original.title }))) {
-                deleteRecipe.mutate(row.original.id)
-              }
-            }}
-            variant="ghost"
-            size="sm"
-            disabled={deleteRecipe.isPending}
-            className="text-destructive hover:text-destructive"
-          >
-            <Trash2 className="size-4 md:mr-1.5" />
-            <span className="hidden md:inline">{deleteRecipe.isPending ? t('recipes.deleting') : t('common.delete')}</span>
-          </Button>
         </div>
       ),
       enableSorting: false,
@@ -309,6 +293,8 @@ export function RecipeTable() {
   }
 
   const rows = table.getRowModel().rows
+  const isFiltered = globalFilter.length > 0
+  const emptyMessage = isFiltered ? t('recipes.noFilterResults') : t('recipes.noRecipes')
 
   return (
     <div className="space-y-3">
@@ -330,7 +316,7 @@ export function RecipeTable() {
       {/* Mobile card list */}
       <div className="md:hidden space-y-1.5">
         {rows.length === 0 ? (
-          <p className="text-center py-6 text-muted-foreground text-sm">{t('recipes.noRecipes')}</p>
+          <p className="text-center py-6 text-muted-foreground text-sm">{emptyMessage}</p>
         ) : (
           rows.map((row) => {
             const r = row.original
@@ -384,17 +370,6 @@ export function RecipeTable() {
                           {t('common.edit')}
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (confirm(t('recipes.deleteConfirm', { title: r.title }))) deleteRecipe.mutate(r.id)
-                        }}
-                        disabled={deleteRecipe.isPending}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="size-4 mr-2" />
-                        {deleteRecipe.isPending ? t('recipes.deleting') : t('common.delete')}
-                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -405,42 +380,9 @@ export function RecipeTable() {
       </div>
 
       {/* Desktop card grid: 2 cols on md, 3 on xl */}
-      <div className="hidden md:block space-y-4">
-        {/* Sort controls */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-muted-foreground">{t('recipes.table.sortBy')}:</span>
-          {[
-            { id: 'title', label: t('recipes.table.title') },
-            { id: 'cuisine', label: t('recipes.table.cuisine') },
-            { id: 'difficulty', label: t('recipes.table.difficulty') },
-            { id: 'prepTime', label: t('recipes.table.prepTime') },
-            { id: 'cookTime', label: t('recipes.table.cookTime') },
-            { id: 'servings', label: t('recipes.table.servings') },
-          ].map(({ id, label }) => {
-            const isSorted = sorting[0]?.id === id
-            const dir = isSorted ? sorting[0].desc ? 'desc' : 'asc' : null
-            return (
-              <Button
-                key={id}
-                variant={isSorted ? 'secondary' : 'ghost'}
-                size="sm"
-                className="h-8"
-                onClick={() =>
-                  setSorting((prev) =>
-                    prev[0]?.id === id && prev[0].desc === false
-                      ? [{ id, desc: true }]
-                      : [{ id, desc: false }]
-                  )
-                }
-              >
-                {label} {dir === 'asc' && ' ↑'} {dir === 'desc' && ' ↓'}
-              </Button>
-            )
-          })}
-        </div>
-
+      <div className="hidden md:block">
         {rows.length === 0 ? (
-          <p className="text-center py-12 text-muted-foreground">{t('recipes.noRecipes')}</p>
+          <p className="text-center py-12 text-muted-foreground">{emptyMessage}</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             {rows.map((row) => {
@@ -459,7 +401,7 @@ export function RecipeTable() {
               return (
                 <Card
                   key={row.id}
-                  className="group relative px-3 py-2.5 flex flex-col transition-colors hover:bg-accent/50 cursor-pointer"
+                  className="group relative px-3 py-2.5 flex flex-col transition-colors hover:bg-muted/40 cursor-pointer"
                   variant="normal"
                   onClick={() =>
                     navigate({
