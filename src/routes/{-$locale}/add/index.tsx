@@ -83,7 +83,7 @@ function AddRecipePage() {
               aria-selected={activeTab === 'url'}
               role="tab"
               className={cn(
-                'rounded-full px-4 py-2 text-sm font-medium transition-all',
+                'rounded-4xl px-4 py-2 text-sm font-medium transition-all',
                 activeTab === 'url'
                   ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
@@ -97,7 +97,7 @@ function AddRecipePage() {
               aria-selected={activeTab === 'image'}
               role="tab"
               className={cn(
-                'rounded-full px-4 py-2 text-sm font-medium transition-all',
+                'rounded-4xl px-4 py-2 text-sm font-medium transition-all',
                 activeTab === 'image'
                   ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'

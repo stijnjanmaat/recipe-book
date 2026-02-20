@@ -366,11 +366,6 @@ function RecipeDetail() {
                         onChange={(e) => setServingsInput(e.target.value)}
                         className="w-20"
                       />
-                      {effectiveServings !== originalServings && (
-                        <span className="text-sm text-muted-foreground">
-                          ({t('recipe.originalServings')}: {originalServings})
-                        </span>
-                      )}
                     </div>
                   )}
                 </div>
