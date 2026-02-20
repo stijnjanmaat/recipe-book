@@ -2,8 +2,8 @@ import { createRootRoute, HeadContent, Link, Outlet, Scripts, useRouterState } f
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { LanguageSwitcher } from '~/components/LanguageSwitcher'
 import i18n, { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
+import { LanguageSwitcher } from '~/components/LanguageSwitcher'
 import { Button } from '~/components/ui/button'
 import { authClient } from '~/lib/auth-client'
 import { useNavigate } from '@tanstack/react-router'
@@ -11,6 +11,39 @@ import { useAuth } from '~/hooks/useAuth'
 import '../app.css'
 
 const queryClient = new QueryClient()
+
+function NotFoundCulinary() {
+  const { t } = useTranslation()
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const locale = detectLocaleFromPath(pathname)
+  const localeParam = locale === 'en' ? undefined : locale
+
+  return (
+    <div className="min-h-[70vh] flex items-center justify-center px-4 py-16">
+      <div className="max-w-lg w-full text-center">
+        <div className="text-8xl mb-4" aria-hidden>
+          🍳
+        </div>
+        <p className="text-7xl font-bold text-primary border-b-2 border-primary pb-2 mb-3">404</p>
+        <h1 className="text-2xl font-semibold text-foreground mb-2">{t('notFound.title')}</h1>
+        <p className="text-muted-foreground italic mb-6">{t('notFound.culinaryTagline')}</p>
+        <p className="text-sm text-muted-foreground mb-8">{t('notFound.description')}</p>
+        <div className="flex flex-wrap gap-4 justify-center">
+          <Button asChild size="lg">
+            <Link to="/{-$locale}" params={{ locale: localeParam }}>
+              {t('notFound.backToHome')}
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <Link to="/{-$locale}/recipes" params={{ locale: localeParam }}>
+              {t('notFound.backToRecipes')}
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export const Route = createRootRoute({
   beforeLoad: async ({ location }) => {
@@ -83,7 +116,7 @@ export const Route = createRootRoute({
     ],
   }),
   component: RootComponent,
-  notFoundComponent: () => <>asdsa</>,
+  notFoundComponent: NotFoundCulinary,
 })
 
 function RootComponent() {
@@ -99,12 +132,17 @@ function RootComponent() {
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
-          <NavWithSession locale={locale} />
-          <div className="min-h-screen bg-background">
-            <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="flex min-h-screen flex-col bg-background">
+            <NavWithSession locale={locale} />
+            <main className="max-w-7xl mx-auto w-full flex-1 py-6 sm:px-6 lg:px-8">
               <Outlet />
               <Scripts />
             </main>
+            <footer className="border-t-2 border-border bg-card py-3">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
+                <LanguageSwitcher />
+              </div>
+            </footer>
             {import.meta.env.DEV && <TanStackRouterDevtools />}
           </div>
         </QueryClientProvider>
@@ -187,7 +225,7 @@ function NavWithSession({ locale }: { locale: string }) {
                 </Button>
                 <Button asChild variant="ghost">
                   <Link
-                    to="/{-$locale}/add/image"
+                    to="/{-$locale}/add"
                     params={{ locale: locale === 'en' ? undefined : locale }}
                   >
                     {t('nav.addRecipe')}
@@ -211,7 +249,6 @@ function NavWithSession({ locale }: { locale: string }) {
                 </Link>
               </Button>
             )}
-            <LanguageSwitcher />
           </div>
         </div>
       </div>

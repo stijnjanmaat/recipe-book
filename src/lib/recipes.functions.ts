@@ -72,47 +72,36 @@ export const deleteRecipe = createServerFn({ method: 'POST' })
     return { success: true }
   })
 
-// Extract recipe from image
-export const extractRecipeFromImageFile = createServerFn({ method: 'POST' })
-  .middleware([authMiddleware])  
-  .inputValidator((data) => {
-    if (!(data instanceof FormData)) {
-      throw new Error('Expected FormData')
-    }
-    const imageFile = data.get('image') as File | null
-    if (!imageFile) {
-      throw new Error('No image file provided')
-    }
-    if (!imageFile.type.startsWith('image/')) {
-      throw new Error('File must be an image')
-    }
-    const outputLanguage = data.get('outputLanguage') as string | null
-    const measurementSystem = data.get('measurementSystem') as string | null
-    return { 
-      imageFile,
-      outputLanguage: outputLanguage || 'en',
-      measurementSystem: measurementSystem || 'metric',
-    }
-  })
+// Extract recipe from image (client uploads file directly to Blob, then we get the URL)
+export const extractRecipeFromImageUrl = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
+  .inputValidator(
+    z.object({
+      imageBlobUrl: z.string().url(),
+      outputLanguage: z.string(),
+      measurementSystem: z.string(),
+    })
+  )
   .handler(async ({ data }) => {
-    const [recipeServer, { extractRecipeFromImage }, { uploadImage }] = await Promise.all([
+    const [recipeServer, { extractRecipeFromImage }] = await Promise.all([
       import('./recipes.server'),
       import('~/lib/ai/extractor.server'),
-      import('~/lib/storage/blob.server'),
     ])
-    
-    // Upload image to Vercel Blob
-    const imageBlobUrl = await uploadImage(data.imageFile, `recipe-${Date.now()}-${data.imageFile.name}`)
 
-    // Extract recipe from image using LLM
-    const extractedRecipe = await extractRecipeFromImage(imageBlobUrl, data.outputLanguage, data.measurementSystem)
+    const imageBlobUrl = data.imageBlobUrl
 
-    // Store recipe in database
+    // Extract recipe from image using LLM (image already in Blob)
+    const extractedRecipe = await extractRecipeFromImage(
+      imageBlobUrl,
+      data.outputLanguage,
+      data.measurementSystem
+    )
+
     const completeRecipe = await recipeServer.createRecipe({
       ...extractedRecipe,
       source: 'uploaded',
       sourceImageUrl: imageBlobUrl,
-      imageBlobUrl: imageBlobUrl,
+      imageBlobUrl,
     })
 
     return completeRecipe

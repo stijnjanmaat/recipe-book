@@ -35,6 +35,7 @@
     "title": "Recipes",
     "description": "Manage your recipe collection",
     "noRecipes": "No recipes found. Add your first recipe to get started!",
+    "noFilterResults": "No recipes match your search.",
     "loading": "Loading recipes...",
     "error": "Error loading recipes",
     "search": "Search recipes...",
@@ -43,6 +44,7 @@
     "deleting": "Deleting...",
     "deleted": "Recipe deleted successfully",
     "table": {
+      "sortBy": "Sort by",
       "image": "Image",
       "title": "Title",
       "description": "Description",
@@ -94,6 +96,7 @@
     "imageHint": "(e.g., photo of a recipe, screenshot)",
     "imageFormats": "Supported formats: PNG, JPG, JPEG, GIF, WEBP",
     "imageReplace": "Click to replace image",
+    "url": "URL",
     "urlPlaceholder": "e.g., https://www.allrecipes.com/recipe/...",
     "extracting": "Extracting recipe... This might take a moment.",
     "extractingMoment": "Please wait while we process your recipe",
@@ -144,7 +147,9 @@
   "notFound": {
     "title": "Page Not Found",
     "description": "The page you're looking for doesn't exist or has been moved.",
-    "backToHome": "Back to Home"
+    "culinaryTagline": "This one got lost in the kitchen.",
+    "backToHome": "Back to Home",
+    "backToRecipes": "Back to Recipes"
   },
   "homepage": {
     "title": "Recipe Book",

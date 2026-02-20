@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getRecipes, getRecipe, createRecipe, updateRecipe, deleteRecipe, extractRecipeFromImageFile, extractRecipeFromUrlString } from '~/lib/recipes.functions'
+import { getRecipes, getRecipe, createRecipe, updateRecipe, deleteRecipe, extractRecipeFromImageUrl, extractRecipeFromUrlString } from '~/lib/recipes.functions'
 import type { CreateRecipeInput, UpdateRecipeInput } from '~/types/recipe'
+import { upload } from '@vercel/blob/client';
 
 // Query keys
 export const recipeKeys = {
@@ -68,21 +69,30 @@ export function useDeleteRecipe() {
   })
 }
 
-// Extract recipe from image file mutation
+// Extract recipe from image: client uploads file to Vercel Blob, then we extract from the blob URL (avoids 4.5MB serverless body limit)
 export function useExtractRecipeFromImage() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: ({ imageFile, outputLanguage, measurementSystem }: { imageFile: File; outputLanguage: string; measurementSystem: string }) => {
-      const formData = new FormData()
-      formData.append('image', imageFile)
-      formData.append('outputLanguage', outputLanguage)
-      formData.append('measurementSystem', measurementSystem)
-      return extractRecipeFromImageFile({ data: formData })
+    mutationFn: async ({
+      imageFile,
+      outputLanguage,
+      measurementSystem,
+    }: {
+      imageFile: File
+      outputLanguage: string
+      measurementSystem: string
+    }) => {
+      const blob = await upload(`recipe-${Date.now()}-${imageFile.name}`, imageFile, {
+        access: 'public',
+        handleUploadUrl: '/api/blob/upload',
+      })
+      return extractRecipeFromImageUrl({
+        data: { imageBlobUrl: blob.url, outputLanguage, measurementSystem },
+      })
     },
     onSuccess: (recipe) => {
       if (!recipe) return
-      // Invalidate recipes list and add the new recipe to cache
       queryClient.invalidateQueries({ queryKey: recipeKeys.lists() })
       queryClient.setQueryData(recipeKeys.detail(recipe.id), recipe)
     },

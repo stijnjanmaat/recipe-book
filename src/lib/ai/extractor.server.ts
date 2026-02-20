@@ -39,7 +39,7 @@ export async function extractRecipeFromImage(imageUrl: string, outputLanguage: s
             },
             {
               type: 'text',
-              text: 'Extract the recipe information from this image.',
+              text: `Extract the recipe information from this image. Output all response fields in ${outputLanguage} language and use ${measurementSystem} measurement system for all ingredient amounts and units.`,
             },
           ],
         },
@@ -97,7 +97,7 @@ export async function extractRecipeFromUrl(url: string, outputLanguage: string, 
         },
         {
           role: 'user',
-          content: `Extract the recipe from this URL: ${url} in ${outputLanguage} language and using ${measurementSystem} measurement system`,
+          content: `Extract the recipe information from this URL: ${url}. Output all response fields in ${outputLanguage} language and use ${measurementSystem} measurement system for all ingredient amounts and units.`,
         },
       ],
       tools: [

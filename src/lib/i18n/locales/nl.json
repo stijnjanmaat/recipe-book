@@ -35,6 +35,7 @@
     "title": "Recepten",
     "description": "Beheer uw receptenverzameling",
     "noRecipes": "Geen recepten gevonden. Voeg uw eerste recept toe om te beginnen!",
+    "noFilterResults": "Geen recepten gevonden voor deze zoekopdracht.",
     "loading": "Recepten laden...",
     "error": "Fout bij het laden van recepten",
     "search": "Zoek recepten...",
@@ -43,6 +44,7 @@
     "deleting": "Verwijderen...",
     "deleted": "Recept succesvol verwijderd",
     "table": {
+      "sortBy": "Sorteren op",
       "image": "Afbeelding",
       "title": "Titel",
       "description": "Beschrijving",
@@ -94,6 +96,7 @@
     "imageHint": "(bijv. foto van een recept, screenshot)",
     "imageFormats": "Ondersteunde formaten: PNG, JPG, JPEG, GIF, WEBP",
     "imageReplace": "Klik om afbeelding te vervangen",
+    "url": "URL",
     "urlPlaceholder": "bijv. https://www.allrecipes.com/recipe/...",
     "extracting": "Recept extraheren... Dit kan even duren.",
     "extractingMoment": "Even geduld terwijl we uw recept verwerken",
@@ -144,7 +147,9 @@
   "notFound": {
     "title": "Pagina Niet Gevonden",
     "description": "De pagina die u zoekt bestaat niet of is verplaatst.",
-    "backToHome": "Terug naar Home"
+    "culinaryTagline": "Dit recept is in de keuken zoekgeraakt.",
+    "backToHome": "Terug naar Home",
+    "backToRecipes": "Terug naar Recepten"
   },
   "homepage": {
     "title": "Receptenboek",
