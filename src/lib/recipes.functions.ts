@@ -72,41 +72,30 @@ export const deleteRecipe = createServerFn({ method: 'POST' })
     return { success: true }
   })
 
-// Extract recipe from image
-export const extractRecipeFromImageFile = createServerFn({ method: 'POST' })
-  .middleware([authMiddleware])  
-  .inputValidator((data) => {
-    if (!(data instanceof FormData)) {
-      throw new Error('Expected FormData')
-    }
-    const imageFile = data.get('image') as File | null
-    if (!imageFile) {
-      throw new Error('No image file provided')
-    }
-    if (!imageFile.type.startsWith('image/')) {
-      throw new Error('File must be an image')
-    }
-    return { imageFile }
-  })
+// Extract recipe from image (client uploads file directly to Blob, then we get the URL)
+export const extractRecipeFromImageUrl = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
+  .inputValidator(
+    z.object({
+      imageBlobUrl: z.string().url(),
+    })
+  )
   .handler(async ({ data }) => {
-    const [recipeServer, { extractRecipeFromImage }, { uploadImage }] = await Promise.all([
+    const [recipeServer, { extractRecipeFromImage }] = await Promise.all([
       import('./recipes.server'),
       import('~/lib/ai/extractor.server'),
-      import('~/lib/storage/blob.server'),
     ])
-    
-    // Upload image to Vercel Blob
-    const imageBlobUrl = await uploadImage(data.imageFile, `recipe-${Date.now()}-${data.imageFile.name}`)
 
-    // Extract recipe from image using LLM
+    const imageBlobUrl = data.imageBlobUrl
+
+    // Extract recipe from image using LLM (image already in Blob)
     const extractedRecipe = await extractRecipeFromImage(imageBlobUrl)
 
-    // Store recipe in database
     const completeRecipe = await recipeServer.createRecipe({
       ...extractedRecipe,
       source: 'uploaded',
       sourceImageUrl: imageBlobUrl,
-      imageBlobUrl: imageBlobUrl,
+      imageBlobUrl,
     })
 
     return completeRecipe

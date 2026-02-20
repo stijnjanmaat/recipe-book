@@ -389,7 +389,7 @@ function RecipeDetail() {
                         <label
                           htmlFor={`ingredient-${recipeId}-${index}`}
                           className={cn(
-                            'flex-1 cursor-pointer select-none text-foreground transition-colors',
+                            'w-fit cursor-pointer select-none text-foreground transition-colors',
                             isChecked && 'text-muted-foreground line-through decoration-2 decoration-muted-foreground'
                           )}
                         >
