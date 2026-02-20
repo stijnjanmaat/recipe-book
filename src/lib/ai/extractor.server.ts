@@ -17,7 +17,7 @@ type RecipeType = z.infer<typeof RecipeSchema>
 /**
  * Extract recipe from an image URL using OpenAI Structured Outputs
  */
-export async function extractRecipeFromImage(imageUrl: string): Promise<RecipeType> {
+export async function extractRecipeFromImage(imageUrl: string, outputLanguage: string, measurementSystem: string): Promise<RecipeType> {
   try {
     const jsonSchema = getRecipeJsonSchema()
     
@@ -39,7 +39,7 @@ export async function extractRecipeFromImage(imageUrl: string): Promise<RecipeTy
             },
             {
               type: 'text',
-              text: 'Extract the recipe information from this image.',
+              text: `Extract the recipe information from this image. Output all response fields in ${outputLanguage} language and use ${measurementSystem} measurement system for all ingredient amounts and units.`,
             },
           ],
         },
@@ -81,7 +81,7 @@ export async function extractRecipeFromImage(imageUrl: string): Promise<RecipeTy
  * Reference: https://developers.openai.com/blog/responses-api
  * The Responses API supports web_search tool and structured outputs
  */
-export async function extractRecipeFromUrl(url: string): Promise<RecipeType> {
+export async function extractRecipeFromUrl(url: string, outputLanguage: string, measurementSystem: string): Promise<RecipeType> {
   try {
     const jsonSchema = getRecipeJsonSchema()
     
@@ -97,7 +97,7 @@ export async function extractRecipeFromUrl(url: string): Promise<RecipeType> {
         },
         {
           role: 'user',
-          content: `Extract the recipe from this URL: ${url}`,
+          content: `Extract the recipe information from this URL: ${url}. Output all response fields in ${outputLanguage} language and use ${measurementSystem} measurement system for all ingredient amounts and units.`,
         },
       ],
       tools: [

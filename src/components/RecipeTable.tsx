@@ -110,6 +110,7 @@ export function RecipeTable() {
     {
       accessorKey: 'title',
       header: t('recipes.table.title'),
+      size: 300, // Target width in pixels
       cell: ({ row }) => (
         <Link
           to="/{-$locale}/recipes/$recipeId"
@@ -126,8 +127,9 @@ export function RecipeTable() {
     {
       accessorKey: 'description',
       header: t('recipes.table.description'),
+      size: 400, // Target width in pixels
       cell: ({ row }) => (
-        <div className="max-w-md truncate text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground line-clamp-3">
           {row.original.description || '-'}
         </div>
       ),
@@ -418,6 +420,11 @@ export function RecipeTable() {
                         ? 'cursor-pointer select-none hover:text-foreground'
                         : ''
                     }
+                    style={{
+                      width: header.column.columnDef.size ? `${header.column.columnDef.size}px` : undefined,
+                      maxWidth: header.column.columnDef.size ? `${header.column.columnDef.size}px` : undefined,
+                      overflow: header.column.columnDef.size ? 'hidden' : undefined,
+                    }}
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     {header.isPlaceholder ? null : (
@@ -460,6 +467,12 @@ export function RecipeTable() {
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
+                      style={{
+                        width: cell.column.columnDef.size ? `${cell.column.columnDef.size}px` : undefined,
+                        maxWidth: cell.column.columnDef.size ? `${cell.column.columnDef.size}px` : undefined,
+                        overflow: cell.column.columnDef.size ? 'hidden' : undefined,
+                        whiteSpace: cell.column.columnDef.size ? 'normal' : undefined,
+                      }}
                       onClick={(e) => {
                         // Prevent navigation if clicking on action buttons or links
                         const target = e.target as HTMLElement

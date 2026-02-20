@@ -8,6 +8,13 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Card } from '~/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 import { authMiddleware } from '~/middleware/auth'
 import { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
 import { checkClientAuth } from '~/lib/auth/route-protection'
@@ -39,6 +46,10 @@ function AddRecipePage() {
   const currentLocale = allParams.locale || 'en'
 
   const [activeTab, setActiveTab] = useState<TabId>(initialTab ?? 'url')
+  const [extraOptions, setExtraOptions] = useState({
+    outputLanguage: 'en',
+    measurementSystem: 'metric',
+  })
 
   // Sync tab from URL search when it changes (e.g. back/forward or direct link)
   useEffect(() => {
@@ -100,6 +111,8 @@ function AddRecipePage() {
         {activeTab === 'url' && (
           <AddRecipeFromUrlTab
             currentLocale={currentLocale}
+            extraOptions={extraOptions}
+            setExtraOptions={setExtraOptions}
             onCancel={() =>
               navigate({
                 to: '/{-$locale}/recipes',
@@ -109,7 +122,11 @@ function AddRecipePage() {
           />
         )}
         {activeTab === 'image' && (
-          <AddRecipeFromImageTab currentLocale={currentLocale} />
+          <AddRecipeFromImageTab
+            currentLocale={currentLocale}
+            extraOptions={extraOptions}
+            setExtraOptions={setExtraOptions}
+          />
         )}
       </div>
     </div>
@@ -118,9 +135,13 @@ function AddRecipePage() {
 
 function AddRecipeFromUrlTab({
   currentLocale,
+  extraOptions,
+  setExtraOptions,
   onCancel,
 }: {
   currentLocale: string
+  extraOptions: { outputLanguage: string; measurementSystem: string }
+  setExtraOptions: React.Dispatch<React.SetStateAction<{ outputLanguage: string; measurementSystem: string }>>
   onCancel: () => void
 }) {
   const { t } = useTranslation()
@@ -131,18 +152,25 @@ function AddRecipeFromUrlTab({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (url.trim()) {
-      extractRecipe.mutate(url.trim(), {
-        onSuccess: (recipe) => {
-          if (!recipe) return
-          navigate({
-            to: '/{-$locale}/recipes/$recipeId',
-            params: {
-              recipeId: recipe.id.toString(),
-              locale: currentLocale === 'en' ? undefined : currentLocale,
-            },
-          })
+      extractRecipe.mutate(
+        {
+          url: url.trim(),
+          outputLanguage: extraOptions.outputLanguage,
+          measurementSystem: extraOptions.measurementSystem,
         },
-      })
+        {
+          onSuccess: (recipe) => {
+            if (!recipe) return
+            navigate({
+              to: '/{-$locale}/recipes/$recipeId',
+              params: {
+                recipeId: recipe.id.toString(),
+                locale: currentLocale === 'en' ? undefined : currentLocale,
+              },
+            })
+          },
+        }
+      )
     }
   }
 
@@ -160,6 +188,44 @@ function AddRecipeFromUrlTab({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="outputLanguage">{t('addRecipe.outputLanguage')}</Label>
+            <Select
+              value={extraOptions.outputLanguage}
+              onValueChange={(value: string) =>
+                setExtraOptions((prev) => ({ ...prev, outputLanguage: value }))
+              }
+              disabled={extractRecipe.isPending}
+            >
+              <SelectTrigger id="outputLanguage">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">{t('common.english')}</SelectItem>
+                <SelectItem value="nl">{t('common.dutch')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="measurementSystem">{t('addRecipe.measurementSystem')}</Label>
+            <Select
+              value={extraOptions.measurementSystem}
+              onValueChange={(value: string) =>
+                setExtraOptions((prev) => ({ ...prev, measurementSystem: value }))
+              }
+              disabled={extractRecipe.isPending}
+            >
+              <SelectTrigger id="measurementSystem">
+                <SelectValue placeholder="Select measurement system" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="metric">{t('common.metric')}</SelectItem>
+                <SelectItem value="imperial">{t('common.imperial')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         <div className="space-y-2">
           <Label htmlFor="url">{t('addRecipe.url')}</Label>
           <Input
@@ -196,7 +262,15 @@ function AddRecipeFromUrlTab({
   )
 }
 
-function AddRecipeFromImageTab({ currentLocale }: { currentLocale: string }) {
+function AddRecipeFromImageTab({
+  currentLocale,
+  extraOptions,
+  setExtraOptions,
+}: {
+  currentLocale: string
+  extraOptions: { outputLanguage: string; measurementSystem: string }
+  setExtraOptions: React.Dispatch<React.SetStateAction<{ outputLanguage: string; measurementSystem: string }>>
+}) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [preview, setPreview] = useState<string | null>(null)
@@ -210,21 +284,28 @@ function AddRecipeFromImageTab({ currentLocale }: { currentLocale: string }) {
         reader.onloadend = () => setPreview(reader.result as string)
         reader.readAsDataURL(file)
 
-        extractRecipe.mutate(file, {
-          onSuccess: (recipe) => {
-            if (!recipe) return
-            navigate({
-              to: '/{-$locale}/recipes/$recipeId',
-              params: {
-                recipeId: recipe.id.toString(),
-                locale: currentLocale === 'en' ? undefined : currentLocale,
-              },
-            })
+        extractRecipe.mutate(
+          {
+            imageFile: file,
+            outputLanguage: extraOptions.outputLanguage,
+            measurementSystem: extraOptions.measurementSystem,
           },
-        })
+          {
+            onSuccess: (recipe) => {
+              if (!recipe) return
+              navigate({
+                to: '/{-$locale}/recipes/$recipeId',
+                params: {
+                  recipeId: recipe.id.toString(),
+                  locale: currentLocale === 'en' ? undefined : currentLocale,
+                },
+              })
+            },
+          }
+        )
       }
     },
-    [extractRecipe, navigate, currentLocale]
+    [extractRecipe, navigate, currentLocale, extraOptions]
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -246,6 +327,45 @@ function AddRecipeFromImageTab({ currentLocale }: { currentLocale: string }) {
           </AlertDescription>
         </Alert>
       )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        <div className="space-y-2">
+          <Label htmlFor="image-outputLanguage">{t('addRecipe.outputLanguage')}</Label>
+          <Select
+            value={extraOptions.outputLanguage}
+            onValueChange={(value: string) =>
+              setExtraOptions((prev) => ({ ...prev, outputLanguage: value }))
+            }
+            disabled={extractRecipe.isPending}
+          >
+            <SelectTrigger id="image-outputLanguage">
+              <SelectValue placeholder="Select language" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">{t('common.english')}</SelectItem>
+              <SelectItem value="nl">{t('common.dutch')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="image-measurementSystem">{t('addRecipe.measurementSystem')}</Label>
+          <Select
+            value={extraOptions.measurementSystem}
+            onValueChange={(value: string) =>
+              setExtraOptions((prev) => ({ ...prev, measurementSystem: value }))
+            }
+            disabled={extractRecipe.isPending}
+          >
+            <SelectTrigger id="image-measurementSystem">
+              <SelectValue placeholder="Select measurement system" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="metric">{t('common.metric')}</SelectItem>
+              <SelectItem value="imperial">{t('common.imperial')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       {extractRecipe.isPending ? (
         <Card className="border-2 border-dashed p-12 text-center">

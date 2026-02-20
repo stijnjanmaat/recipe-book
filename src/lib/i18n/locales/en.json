@@ -20,7 +20,11 @@
     "notes": "Notes",
     "instruction": "Instruction",
     "imageUrl": "Image URL",
-    "identifier": "ID"
+    "identifier": "ID",
+    "english": "English",
+    "dutch": "Dutch",
+    "metric": "Metric",
+    "imperial": "Imperial"
   },
   "nav": {
     "appName": "Recipe Book",
@@ -98,7 +102,9 @@
     "errorExtracting": "An error occurred while extracting the recipe. Please try again.",
     "switchToUrl": "Prefer to add from a URL?",
     "switchToImage": "Prefer to add from an image?",
-    "extractButton": "Extract Recipe"
+    "extractButton": "Extract Recipe",
+    "outputLanguage": "Output Language",
+    "measurementSystem": "Measurement System"
   },
   "editRecipe": {
     "title": "Edit Recipe",

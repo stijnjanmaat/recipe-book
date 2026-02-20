@@ -74,12 +74,22 @@ export function useExtractRecipeFromImage() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (imageFile: File) => {
+    mutationFn: async ({
+      imageFile,
+      outputLanguage,
+      measurementSystem,
+    }: {
+      imageFile: File
+      outputLanguage: string
+      measurementSystem: string
+    }) => {
       const blob = await upload(`recipe-${Date.now()}-${imageFile.name}`, imageFile, {
         access: 'public',
         handleUploadUrl: '/api/blob/upload',
       })
-      return extractRecipeFromImageUrl({ data: { imageBlobUrl: blob.url } })
+      return extractRecipeFromImageUrl({
+        data: { imageBlobUrl: blob.url, outputLanguage, measurementSystem },
+      })
     },
     onSuccess: (recipe) => {
       if (!recipe) return
@@ -94,7 +104,8 @@ export function useExtractRecipeFromUrl() {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: (url: string) => extractRecipeFromUrlString({ data: { url } }),
+    mutationFn: ({ url, outputLanguage, measurementSystem }: { url: string; outputLanguage: string; measurementSystem: string }) => 
+      extractRecipeFromUrlString({ data: { url, outputLanguage, measurementSystem } }),
     onSuccess: (recipe) => {
       if (!recipe) return
       // Invalidate recipes list and add the new recipe to cache
