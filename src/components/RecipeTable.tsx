@@ -12,22 +12,20 @@ import {
 import { useState } from 'react'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { MoreVertical, Eye, Pencil, Trash2, Plus } from 'lucide-react'
+import { MoreVertical, Eye, Pencil, Trash2, Clock, Flame, ChefHat, Users, UtensilsCrossed } from 'lucide-react'
 import { useRecipes, useDeleteRecipe } from '~/hooks/useRecipes'
 import type { Recipe } from '~/types/recipe'
 import { detectLocaleFromPath } from '~/lib/i18n/config'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '~/components/ui/table'
 import { Input } from '~/components/ui/input'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
 import { Alert, AlertDescription } from '~/components/ui/alert'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '~/components/ui/tooltip'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -406,95 +404,144 @@ export function RecipeTable() {
         )}
       </div>
 
-      {/* Desktop table */}
-      <Card className="hidden md:block">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className={
-                      header.column.getCanSort()
-                        ? 'cursor-pointer select-none hover:text-foreground'
-                        : ''
-                    }
-                    style={{
-                      width: header.column.columnDef.size ? `${header.column.columnDef.size}px` : undefined,
-                      maxWidth: header.column.columnDef.size ? `${header.column.columnDef.size}px` : undefined,
-                      overflow: header.column.columnDef.size ? 'hidden' : undefined,
-                    }}
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    {header.isPlaceholder ? null : (
-                      <div className="flex items-center gap-2">
-                        {header.column.columnDef.header as string}
-                        {{
-                          asc: ' ↑',
-                          desc: ' ↓',
-                        }[header.column.getIsSorted() as string] ?? ''}
-                      </div>
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {t('recipes.noRecipes')}
-                </TableCell>
-              </TableRow>
-            ) : (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
+      {/* Desktop card grid: 2 cols on md, 3 on xl */}
+      <div className="hidden md:block space-y-4">
+        {/* Sort controls */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted-foreground">{t('recipes.table.sortBy')}:</span>
+          {[
+            { id: 'title', label: t('recipes.table.title') },
+            { id: 'cuisine', label: t('recipes.table.cuisine') },
+            { id: 'difficulty', label: t('recipes.table.difficulty') },
+            { id: 'prepTime', label: t('recipes.table.prepTime') },
+            { id: 'cookTime', label: t('recipes.table.cookTime') },
+            { id: 'servings', label: t('recipes.table.servings') },
+          ].map(({ id, label }) => {
+            const isSorted = sorting[0]?.id === id
+            const dir = isSorted ? sorting[0].desc ? 'desc' : 'asc' : null
+            return (
+              <Button
+                key={id}
+                variant={isSorted ? 'secondary' : 'ghost'}
+                size="sm"
+                className="h-8"
+                onClick={() =>
+                  setSorting((prev) =>
+                    prev[0]?.id === id && prev[0].desc === false
+                      ? [{ id, desc: true }]
+                      : [{ id, desc: false }]
+                  )
+                }
+              >
+                {label} {dir === 'asc' && ' ↑'} {dir === 'desc' && ' ↓'}
+              </Button>
+            )
+          })}
+        </div>
+
+        {rows.length === 0 ? (
+          <p className="text-center py-12 text-muted-foreground">{t('recipes.noRecipes')}</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+            {rows.map((row) => {
+              const r = row.original
+              const difficulty = r.difficulty
+              const difficultyColors = {
+                easy: 'text-green-600',
+                medium: 'text-yellow-600',
+                hard: 'text-red-600',
+              }
+              const difficultyColor = difficulty
+                ? difficultyColors[difficulty as keyof typeof difficultyColors] || 'text-muted-foreground'
+                : ''
+              const servingsRelevant = r.servingsRelevant !== false
+
+              return (
+                <Card
                   key={row.id}
-                  className="cursor-pointer"
-                  onClick={() => {
-                    // Navigate to recipe detail when row is clicked
-                    navigate({ 
-                      to: '/{-$locale}/recipes/$recipeId', 
-                      params: { 
-                        recipeId: row.original.id.toString(),
-                        locale: currentLocale === 'en' ? undefined : currentLocale
-                      } 
+                  className="group relative px-3 py-2.5 flex flex-col transition-colors hover:bg-accent/50 cursor-pointer"
+                  variant="normal"
+                  onClick={() =>
+                    navigate({
+                      to: '/{-$locale}/recipes/$recipeId',
+                      params: {
+                        recipeId: r.id.toString(),
+                        locale: currentLocale === 'en' ? undefined : currentLocale,
+                      },
                     })
-                  }}
+                  }
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      style={{
-                        width: cell.column.columnDef.size ? `${cell.column.columnDef.size}px` : undefined,
-                        maxWidth: cell.column.columnDef.size ? `${cell.column.columnDef.size}px` : undefined,
-                        overflow: cell.column.columnDef.size ? 'hidden' : undefined,
-                        whiteSpace: cell.column.columnDef.size ? 'normal' : undefined,
-                      }}
-                      onClick={(e) => {
-                        // Prevent navigation if clicking on action buttons or links
-                        const target = e.target as HTMLElement
-                        if (
-                          target.tagName === 'BUTTON' ||
-                          target.tagName === 'A' ||
-                          target.closest('button') ||
-                          target.closest('a')
-                        ) {
-                          e.stopPropagation()
-                        }
-                      }}
-                    >
-                      {cell.renderValue() as React.ReactNode}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </Card>
+                  <h3 className="font-semibold text-md text-foreground leading-snug mb-0.5">
+                    {r.title}
+                  </h3>
+
+                  {r.description && (
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                      {r.description}
+                    </p>
+                  )}
+
+                  {r.cuisine && (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+                      <UtensilsCrossed className="size-3 shrink-0" />
+                      <span>{r.cuisine}</span>
+                    </div>
+                  )}
+
+                  <TooltipProvider>
+                    <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      {difficulty && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className={`flex items-center gap-1 font-medium ${difficultyColor}`}>
+                              <ChefHat className="size-3" />
+                              {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>{t('recipes.table.difficulty')}</TooltipContent>
+                        </Tooltip>
+                      )}
+                      {r.prepTime != null && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="flex items-center gap-1">
+                              <Clock className="size-3" />
+                              {r.prepTime} {t('common.minutes')}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>{t('recipes.table.prepTime')}</TooltipContent>
+                        </Tooltip>
+                      )}
+                      {r.cookTime != null && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="flex items-center gap-1">
+                              <Flame className="size-3" />
+                              {r.cookTime} {t('common.minutes')}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>{t('recipes.table.cookTime')}</TooltipContent>
+                        </Tooltip>
+                      )}
+                      {servingsRelevant && r.servings != null && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="flex items-center gap-1">
+                              <Users className="size-3" />
+                              {r.servings}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>{t('recipes.table.servings')}</TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
+                  </TooltipProvider>
+                </Card>
+              )
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Pagination - shared for mobile cards and desktop table */}
       {table.getPageCount() > 1 && (

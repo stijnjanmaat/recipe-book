@@ -43,6 +43,7 @@
     "deleting": "Deleting...",
     "deleted": "Recipe deleted successfully",
     "table": {
+      "sortBy": "Sort by",
       "image": "Image",
       "title": "Title",
       "description": "Description",

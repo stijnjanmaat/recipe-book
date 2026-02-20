@@ -43,6 +43,7 @@
     "deleting": "Verwijderen...",
     "deleted": "Recept succesvol verwijderd",
     "table": {
+      "sortBy": "Sorteren op",
       "image": "Afbeelding",
       "title": "Titel",
       "description": "Beschrijving",

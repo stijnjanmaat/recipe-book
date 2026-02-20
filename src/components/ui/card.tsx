@@ -3,18 +3,20 @@ import * as React from "react"
 import { cn } from "~/lib/utils"
 
 const cardVariants = {
-  default:
+  spacious:
     "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border-2 border-border py-6",
+  normal:
+    "bg-card text-card-foreground flex flex-col gap-4 rounded-xl border-2 border-border py-2 px-2",
   compact:
     "bg-card text-card-foreground flex flex-col gap-0 rounded-xl border-2 border-border py-2 px-2",
 }
 
 function Card({
   className,
-  variant = "default",
+  variant = "spacious",
   ...props
 }: React.ComponentProps<"div"> & {
-  variant?: "default" | "compact"
+  variant?: "spacious" | "normal" | "compact"
 }) {
   return (
     <div
