@@ -39,23 +39,28 @@ cp .env.example .env.local
 Edit `.env.local` and configure all required variables:
 
 #### Database
+
 - `DATABASE_URL` - PostgreSQL connection string (defaults to Docker Compose instance)
 
 #### AI/LLM
+
 - `OPENAI_API_KEY` - Your OpenAI API key (required for recipe extraction)
 - `AI_MODEL` - Model for image extraction (default: `gpt-4o`)
 - `AI_MODEL_TEXT` - Model for URL extraction (default: `gpt-4o`)
 
 #### Storage
+
 - `BLOB_READ_WRITE_TOKEN` - Vercel Blob storage token (for recipe images)
 
 #### Authentication (Better Auth)
+
 - `GOOGLE_CLIENT_ID` - Google OAuth client ID
 - `GOOGLE_CLIENT_SECRET` - Google OAuth client secret
 - `BETTER_AUTH_URL` - Base URL for auth callbacks (e.g., `http://localhost:3000` for dev, your production URL for prod)
 - `SUPERADMIN_EMAILS` - Comma-separated list of email addresses that should have superadmin access
 
 #### App
+
 - `NODE_ENV` - Environment mode (`development` or `production`)
 
 ### 3. Start PostgreSQL Database
@@ -67,6 +72,7 @@ pnpm db:up
 ```
 
 This starts a PostgreSQL 16 container on port 5433 with:
+
 - Database: `recipebook`
 - User: `recipebook`
 - Password: `recipebook`
@@ -123,11 +129,13 @@ src/
 ## Features
 
 ### Authentication
+
 - **Better Auth** with Google OAuth only (no email/password)
 - Superadmin role-based access control
 - Client and server-side auth checks
 
 ### Recipe Management
+
 - Extract recipes from images using GPT-5.2
 - Extract recipes from URLs
 - View, edit, and delete recipes
@@ -137,9 +145,11 @@ src/
 - Tag support
 
 ### Internationalization
+
 - English and Dutch language support
 
 ### UI/UX
+
 - Modern, clean design with shadcn/ui components
 - Responsive layout
 - PWA support (mobile home screen installation)
@@ -147,6 +157,7 @@ src/
 ## Development
 
 ### Route Generation
+
 TanStack Router uses file-based routing. After adding/modifying routes, regenerate the route tree:
 
 ```bash

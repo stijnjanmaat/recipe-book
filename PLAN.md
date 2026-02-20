@@ -1,11 +1,13 @@
 # Recipe Book Application - Implementation Plan
 
 ## Overview
+
 A TypeScript application using TanStack (React Query/Table) that collects recipes via LLM processing of images, photos, screenshots, and URLs. Recipes are stored in a structured backend database.
 
 ## Architecture
 
 ### High-Level Architecture
+
 ```
 ┌─────────────────┐
 │   Frontend      │
@@ -38,6 +40,7 @@ A TypeScript application using TanStack (React Query/Table) that collects recipe
 ## Tech Stack
 
 ### Frontend & Framework
+
 - **Framework**: TanStack Start (full-stack TypeScript framework with TanStack Router + Vite)
 - **UI Library**: TanStack Table (for recipe display/management)
 - **State Management**: TanStack Query (React Query) for server state
@@ -46,16 +49,18 @@ A TypeScript application using TanStack (React Query/Table) that collects recipe
 - **Image Processing**: Client-side image preview/optimization
 
 ### Backend
+
 - **Runtime**: TanStack Start server functions/RPCs
 - **AI Integration**: Vercel AI SDK
 - **LLM Provider**: OpenAI (GPT-4 Vision) via API key
-- **Database**: 
+- **Database**:
   - **Production**: PostgreSQL via Vercel Postgres
   - **Development**: SQLite (local file-based)
 - **ORM**: Drizzle ORM (supports both Postgres and SQLite)
 - **Image Storage**: Vercel Blob Storage
 
 ### MCP Server Consideration
+
 **Decision: Not Using MCP Server**
 
 We will not implement an MCP (Model Context Protocol) server for this application. The LLM will process inputs (images/URLs) and return structured JSON, which our server functions will then store in the database. This approach is simpler and sufficient for the recipe extraction use case.
@@ -125,86 +130,107 @@ recipe-book/
 ## Database Schema (Drizzle ORM)
 
 ### Recipe Table
+
 ```typescript
 // Using Drizzle schema definition
-import { pgTable, sqliteTable, serial, text, integer, timestamp } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
+import {
+  pgTable,
+  sqliteTable,
+  serial,
+  text,
+  integer,
+  timestamp,
+} from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 // For PostgreSQL (production)
-export const recipes = pgTable('recipes', {
-  id: serial('id').primaryKey(),
-  title: text('title').notNull(),
-  description: text('description'),
-  prepTime: integer('prep_time'), // minutes
-  cookTime: integer('cook_time'), // minutes
-  totalTime: integer('total_time'), // minutes
-  servings: integer('servings'),
-  difficulty: text('difficulty'), // 'easy' | 'medium' | 'hard'
-  cuisine: text('cuisine'),
-  tags: text('tags').array(), // PostgreSQL array
-  source: text('source'), // URL or 'uploaded'
-  sourceImageUrl: text('source_image_url'), // Vercel Blob URL
-  imageBlobUrl: text('image_blob_url'), // Main recipe image from Vercel Blob
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+export const recipes = pgTable("recipes", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  prepTime: integer("prep_time"), // minutes
+  cookTime: integer("cook_time"), // minutes
+  totalTime: integer("total_time"), // minutes
+  servings: integer("servings"),
+  difficulty: text("difficulty"), // 'easy' | 'medium' | 'hard'
+  cuisine: text("cuisine"),
+  tags: text("tags").array(), // PostgreSQL array
+  source: text("source"), // URL or 'uploaded'
+  sourceImageUrl: text("source_image_url"), // Vercel Blob URL
+  imageBlobUrl: text("image_blob_url"), // Main recipe image from Vercel Blob
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // For SQLite (development) - similar structure but without array support
-export const recipesSqlite = sqliteTable('recipes', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  title: text('title').notNull(),
-  description: text('description'),
-  prepTime: integer('prep_time'),
-  cookTime: integer('cook_time'),
-  totalTime: integer('total_time'),
-  servings: integer('servings'),
-  difficulty: text('difficulty'),
-  cuisine: text('cuisine'),
-  tags: text('tags'), // JSON string in SQLite
-  source: text('source'),
-  sourceImageUrl: text('source_image_url'),
-  imageBlobUrl: text('image_blob_url'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
+export const recipesSqlite = sqliteTable("recipes", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  description: text("description"),
+  prepTime: integer("prep_time"),
+  cookTime: integer("cook_time"),
+  totalTime: integer("total_time"),
+  servings: integer("servings"),
+  difficulty: text("difficulty"),
+  cuisine: text("cuisine"),
+  tags: text("tags"), // JSON string in SQLite
+  source: text("source"),
+  sourceImageUrl: text("source_image_url"),
+  imageBlobUrl: text("image_blob_url"),
+  createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
+    () => new Date()
+  ),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(
+    () => new Date()
+  ),
 });
 ```
 
 ### Ingredient Table
+
 ```typescript
-export const ingredients = pgTable('ingredients', {
-  id: serial('id').primaryKey(),
-  recipeId: integer('recipe_id').references(() => recipes.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  amount: text('amount'), // Store as text to handle fractions like "1/2"
-  unit: text('unit'),
-  notes: text('notes'),
-  order: integer('order').default(0),
+export const ingredients = pgTable("ingredients", {
+  id: serial("id").primaryKey(),
+  recipeId: integer("recipe_id").references(() => recipes.id, {
+    onDelete: "cascade",
+  }),
+  name: text("name").notNull(),
+  amount: text("amount"), // Store as text to handle fractions like "1/2"
+  unit: text("unit"),
+  notes: text("notes"),
+  order: integer("order").default(0),
 });
 ```
 
 ### Instruction Table
+
 ```typescript
-export const instructions = pgTable('instructions', {
-  id: serial('id').primaryKey(),
-  recipeId: integer('recipe_id').references(() => recipes.id, { onDelete: 'cascade' }),
-  step: integer('step').notNull(),
-  instruction: text('instruction').notNull(),
-  imageUrl: text('image_url'), // Optional step image from Vercel Blob
+export const instructions = pgTable("instructions", {
+  id: serial("id").primaryKey(),
+  recipeId: integer("recipe_id").references(() => recipes.id, {
+    onDelete: "cascade",
+  }),
+  step: integer("step").notNull(),
+  instruction: text("instruction").notNull(),
+  imageUrl: text("image_url"), // Optional step image from Vercel Blob
 });
 ```
 
 ### Nutrition Table (Optional)
+
 ```typescript
-export const nutrition = pgTable('nutrition', {
-  id: serial('id').primaryKey(),
-  recipeId: integer('recipe_id').references(() => recipes.id, { onDelete: 'cascade' }),
-  calories: integer('calories'),
-  protein: integer('protein'), // grams
-  carbs: integer('carbs'), // grams
-  fat: integer('fat'), // grams
-  fiber: integer('fiber'), // grams
-  sugar: integer('sugar'), // grams
-  sodium: integer('sodium'), // mg
+export const nutrition = pgTable("nutrition", {
+  id: serial("id").primaryKey(),
+  recipeId: integer("recipe_id").references(() => recipes.id, {
+    onDelete: "cascade",
+  }),
+  calories: integer("calories"),
+  protein: integer("protein"), // grams
+  carbs: integer("carbs"), // grams
+  fat: integer("fat"), // grams
+  fiber: integer("fiber"), // grams
+  sugar: integer("sugar"), // grams
+  sodium: integer("sodium"), // mg
 });
 ```
 
@@ -213,6 +239,7 @@ export const nutrition = pgTable('nutrition', {
 ## Core Features
 
 ### 1. Recipe Extraction from Images
+
 - **Input**: User uploads image (photo, screenshot)
 - **Process**:
   1. Upload image to blob storage
@@ -222,6 +249,7 @@ export const nutrition = pgTable('nutrition', {
 - **LLM Prompt**: Structured prompt requesting JSON output matching recipe schema
 
 ### 2. Recipe Extraction from URLs
+
 - **Input**: User provides URL
 - **Process**:
   1. Fetch webpage content (with Puppeteer or similar for JS-rendered content)
@@ -231,6 +259,7 @@ export const nutrition = pgTable('nutrition', {
 - **LLM Prompt**: Extract recipe from webpage content
 
 ### 3. Recipe Management
+
 - **View**: List recipes in table (TanStack Table)
 - **Search/Filter**: By title, cuisine, tags, difficulty
 - **Edit**: Manual editing of extracted recipes
@@ -238,6 +267,7 @@ export const nutrition = pgTable('nutrition', {
 - **Export**: Export recipes (JSON, PDF, etc.)
 
 ### 4. Recipe Display
+
 - **Detail View**: Full recipe with ingredients, instructions, images
 - **Print View**: Print-friendly format
 - **Share**: Shareable links
@@ -245,6 +275,7 @@ export const nutrition = pgTable('nutrition', {
 ## Implementation Steps
 
 ### Phase 1: Project Setup
+
 1. Initialize TanStack Start project with TypeScript
    ```bash
    npm create tanstack-start@latest recipe-book
@@ -267,12 +298,14 @@ export const nutrition = pgTable('nutrition', {
 4. Configure environment variables (see Environment Variables section)
 
 ### Phase 2: Database Setup
+
 1. Define database schema with Drizzle
 2. Create migrations
 3. Set up database connection
 4. Create seed data (optional)
 
 ### Phase 3: Core API Routes (TanStack Start Server Functions)
+
 1. **Recipe CRUD API** (`src/api/recipes/`)
    - `index.ts`: Server function for GET (list) and POST (create)
    - `$recipeId.ts`: Server function for GET (detail), PUT (update), DELETE
@@ -297,6 +330,7 @@ export const nutrition = pgTable('nutrition', {
    - Return recipe data
 
 ### Phase 4: LLM Integration
+
 1. Set up OpenAI API client with API key from environment variables
 2. Create prompt templates in `src/lib/ai/prompts.ts`:
    - Image extraction prompt (for GPT-4 Vision)
@@ -310,6 +344,7 @@ export const nutrition = pgTable('nutrition', {
 6. Implement streaming (optional, for better UX during extraction)
 
 ### Phase 5: Frontend - Recipe List
+
 1. Create TanStack Query hooks in `src/hooks/useRecipes.ts`:
    - `useRecipes()` - list recipes
    - `useRecipe(id)` - single recipe
@@ -323,6 +358,7 @@ export const nutrition = pgTable('nutrition', {
 6. Use TanStack Start's route loader for SSR data fetching
 
 ### Phase 6: Frontend - Add Recipe
+
 1. Create routes in `src/routes/add/`:
    - `image.tsx` - Image upload page
    - `url.tsx` - URL input page
@@ -340,6 +376,7 @@ export const nutrition = pgTable('nutrition', {
 5. Use TanStack Start server functions for extraction API calls
 
 ### Phase 7: Frontend - Recipe Detail
+
 1. ✅ Create recipe detail page
 2. ✅ Display all recipe information
 3. ⏳ Add edit functionality (edit page)
@@ -348,6 +385,7 @@ export const nutrition = pgTable('nutrition', {
 6. ⏳ **Image handling**: Recipe detail page should show the most relevant image from the website (not the uploaded image), prioritize `sourceImageUrl` or extracted image from webpage
 
 ### Phase 8: Polish & Enhancements
+
 1. ✅ **Table improvements**: Ensure image is in first column (already done, verify)
 2. ✅ **Fix URL extraction**: Correctly configure OpenAI web_search tool usage
 3. ⏳ Add image optimization
@@ -362,6 +400,7 @@ export const nutrition = pgTable('nutrition', {
 12. ✅ Edit recipe functionality with add/remove items
 
 ### Phase 9: Internationalization (i18n)
+
 1. ⏳ Set up i18n framework (e.g., react-i18next, next-intl, or similar)
 2. ⏳ Add Dutch language support
 3. ⏳ Extract all UI text to translation files
@@ -369,6 +408,7 @@ export const nutrition = pgTable('nutrition', {
 5. ⏳ Test all pages with Dutch translations
 
 ### Phase 10: Component Library Migration (shadcn/ui)
+
 1. ⏳ Install and configure shadcn/ui
 2. ⏳ Set up theme configuration
 3. ⏳ Reimagine RecipeTable component using shadcn components
@@ -382,6 +422,7 @@ export const nutrition = pgTable('nutrition', {
 ## LLM Prompt Strategy
 
 ### Image Extraction Prompt
+
 ```
 You are a recipe extraction expert. Analyze the provided image and extract the recipe information in the following JSON structure:
 
@@ -420,6 +461,7 @@ Extract all visible recipe information from the image. If information is missing
 ```
 
 ### URL Extraction Prompt
+
 ```
 You are a recipe extraction expert. Analyze the provided webpage content and extract the recipe information in the following JSON structure:
 
@@ -431,6 +473,7 @@ Focus on extracting the main recipe from the page, ignoring advertisements, comm
 ## Environment Variables
 
 ### Development (.env.local)
+
 ```env
 # Database - SQLite for local development
 DATABASE_URL="file:./dev.db"
@@ -448,6 +491,7 @@ NODE_ENV="development"
 ```
 
 ### Production (.env.production)
+
 ```env
 # Database - Vercel Postgres
 POSTGRES_URL="postgresql://..."
@@ -485,6 +529,7 @@ NODE_ENV="production"
 ## Technical Considerations
 
 ### TanStack Start Specifics
+
 - **Server Functions**: Use TanStack Start's server function pattern for API endpoints
 - **File-based Routing**: Routes are defined by file structure in `src/routes/`
 - **SSR & Data Loading**: Use route loaders for server-side data fetching
@@ -492,6 +537,7 @@ NODE_ENV="production"
 - **Deployment**: TanStack Start apps can be deployed to Vercel, Cloudflare, or other platforms
 
 ### Image Processing
+
 - Support common formats: JPEG, PNG, WebP
 - Client-side compression before upload (reduce file size)
 - Server-side validation (file type, size limits)
@@ -500,6 +546,7 @@ NODE_ENV="production"
 - Leverage Vercel Blob's CDN for fast image delivery
 
 ### URL Processing
+
 - Handle both static and dynamic (JS-rendered) pages
 - Use Puppeteer or Playwright for JS-heavy sites (optional, adds complexity)
 - Fallback to simple fetch for static content
@@ -508,6 +555,7 @@ NODE_ENV="production"
 - Consider caching fetched content to avoid re-fetching
 
 ### LLM Response Handling
+
 - Use OpenAI's structured output (JSON mode) when available
 - Implement retry logic with exponential backoff for failed extractions
 - Validate LLM responses with Zod schemas matching database schema
@@ -516,6 +564,7 @@ NODE_ENV="production"
 - Log extraction failures for debugging and improvement
 
 ### Performance
+
 - Implement caching for recipe queries with TanStack Query
 - Use TanStack Start's built-in SSR and data loading
 - Optimize images from Vercel Blob (leverage CDN)
@@ -558,48 +607,50 @@ NODE_ENV="production"
 ## Database Configuration Strategy
 
 ### Conditional Database Setup
+
 Since we're using Postgres in production and SQLite in development, we need a strategy to handle both:
 
 ```typescript
 // src/db/client.ts
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
-import postgres from 'postgres';
-import Database from 'better-sqlite3';
-import * as schema from './schema';
+import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle as drizzleSqlite } from "drizzle-orm/better-sqlite3";
+import postgres from "postgres";
+import Database from "better-sqlite3";
+import * as schema from "./schema";
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === "production";
 
 if (isProduction) {
   const client = postgres(process.env.POSTGRES_URL!);
   export const db = drizzle(client, { schema });
 } else {
-  const sqlite = new Database('./dev.db');
+  const sqlite = new Database("./dev.db");
   export const db = drizzleSqlite(sqlite, { schema });
 }
 ```
 
 ### Drizzle Configuration
+
 ```typescript
 // drizzle.config.ts
-import type { Config } from 'drizzle-kit';
+import type { Config } from "drizzle-kit";
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === "production";
 
 export default {
-  schema: './src/db/schema.ts',
-  out: './src/db/migrations',
+  schema: "./src/db/schema.ts",
+  out: "./src/db/migrations",
   ...(isProduction
     ? {
-        dialect: 'postgresql',
+        dialect: "postgresql",
         dbCredentials: {
           url: process.env.POSTGRES_URL!,
         },
       }
     : {
-        dialect: 'sqlite',
+        dialect: "sqlite",
         dbCredentials: {
-          url: './dev.db',
+          url: "./dev.db",
         },
       }),
 } satisfies Config;
@@ -608,16 +659,17 @@ export default {
 ## Vercel Blob Integration
 
 ### Setup
+
 1. Install Vercel Blob package: `@vercel/blob`
 2. Get Blob storage token from Vercel dashboard
 3. Create wrapper in `src/lib/storage/blob.ts`:
 
 ```typescript
-import { put } from '@vercel/blob';
+import { put } from "@vercel/blob";
 
 export async function uploadImage(file: File): Promise<string> {
   const blob = await put(file.name, file, {
-    access: 'public',
+    access: "public",
     token: process.env.BLOB_READ_WRITE_TOKEN!,
   });
   return blob.url;
@@ -627,12 +679,14 @@ export async function uploadImage(file: File): Promise<string> {
 ## OpenAI Integration Details
 
 ### Image Extraction
+
 - Use GPT-4 Vision model (`gpt-4-vision-preview` or `gpt-4o`)
 - Send image URL from Vercel Blob
 - Request structured JSON output matching recipe schema
 - Use function calling or JSON mode for structured output
 
 ### URL Extraction
+
 - Use GPT-4 Turbo (`gpt-4-turbo-preview` or `gpt-4o`)
 - Fetch webpage content first (handle JS-rendered pages if needed)
 - Send extracted text content to LLM
@@ -657,4 +711,3 @@ export async function uploadImage(file: File): Promise<string> {
 ---
 
 **Note on MCP Server**: We are not implementing an MCP server. The LLM will extract recipe data and return it as JSON, which our server functions will then store in the database. This keeps the architecture simple and straightforward for the MVP.
-

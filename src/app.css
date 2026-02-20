@@ -78,12 +78,12 @@
 
 :root {
   /* Custom color palette - Fresh & Fruity */
-  --lightning: #fab429;      /* Yellow-orange */
-  --bittersweet: #ff6e61;    /* Coral/orange-red */
-  --careys-pink: #d4a0a1;    /* Dusty rose */
-  --moss-green: #a6d9b6;     /* Mint green */
-  --juniper: #6d8d8b;        /* Blue-green/teal */
-  
+  --lightning: #fab429; /* Yellow-orange */
+  --bittersweet: #ff6e61; /* Coral/orange-red */
+  --careys-pink: #d4a0a1; /* Dusty rose */
+  --moss-green: #a6d9b6; /* Mint green */
+  --juniper: #6d8d8b; /* Blue-green/teal */
+
   /* Flat design - no shadows, full borders, generous spacing */
   --radius: 0.5rem; /* Slightly reduced for cleaner look */
   --background: #ffffff;
@@ -161,7 +161,7 @@
   body {
     @apply bg-background text-foreground;
   }
-  
+
   /* Flat design - remove shadows from common elements */
   button,
   .card,
@@ -171,7 +171,7 @@
   select {
     box-shadow: none !important;
   }
-  
+
   /* Generous spacing for fresh & clean look */
   .space-y-4 > * + * {
     margin-top: 1.5rem;

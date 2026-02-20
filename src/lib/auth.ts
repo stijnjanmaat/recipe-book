@@ -2,20 +2,20 @@
  * Better Auth configuration
  * Server-only code - should only be imported in server functions
  */
-import { betterAuth } from 'better-auth'
-import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { tanstackStartCookies } from 'better-auth/tanstack-start'
-import { createAuthMiddleware, APIError } from 'better-auth/api'
-import { eq } from 'drizzle-orm'
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
+import { APIError, createAuthMiddleware } from "better-auth/api";
+import { eq } from "drizzle-orm";
 
 // Import database and schema
-import { db } from '~/db/client.server'
-import * as schema from '~/db/schema'
+import { db } from "~/db/client.server";
+import * as schema from "~/db/schema";
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   database: drizzleAdapter(db, {
-    provider: 'pg',
+    provider: "pg",
     schema: {
       user: schema.users,
       account: schema.accounts,
@@ -35,9 +35,9 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: {
-        type: 'string',
+        type: "string",
         required: false,
-        defaultValue: 'user',
+        defaultValue: "user",
         input: false, // Users cannot set this field themselves
       },
     },
@@ -46,47 +46,49 @@ export const auth = betterAuth({
     tanstackStartCookies(), // Must be last plugin for cookie handling
   ],
   callbacks: {
-    async session({ session, user }: { session: any; user: any }) {
+    session({ session, user }: { session: any; user: any }) {
       // Add role to session
       if (session.user) {
-        session.user.role = user.role || 'user'
+        session.user.role = user.role || "user";
       }
-      return session
+      return session;
     },
   },
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
       // Handle Google OAuth callback - check superadmin access
-      if (ctx.path === '/callback/google') {
-        const session = ctx.context.session || ctx.context.newSession
+      if (ctx.path === "/callback/google") {
+        const session = ctx.context.session || ctx.context.newSession;
 
         if (!session) {
-          return
+          return;
         }
-        
-        const user = session.user
-        const isNewUser = !!ctx.context.newSession
+
+        const user = session.user;
+        const isNewUser = !!ctx.context.newSession;
 
         // For new users, set role based on superadmin email list
         if (isNewUser) {
-          const superadminEmails = (process.env.SUPERADMIN_EMAILS || '')
-            .split(',')
+          const superadminEmails = (process.env.SUPERADMIN_EMAILS || "")
+            .split(",")
             .map((e) => e.trim())
-            .filter(Boolean)
-          
-          const role = superadminEmails.includes(user.email) ? 'superadmin' : 'user'
-          
+            .filter(Boolean);
+
+          const role = superadminEmails.includes(user.email)
+            ? "superadmin"
+            : "user";
+
           // Update user with role
           await db
             .update(schema.users)
             .set({ role })
-            .where(eq(schema.users.id, user.id))
-          
+            .where(eq(schema.users.id, user.id));
+
           // If user is not a superadmin, prevent sign-in
-          if (role !== 'superadmin') {
-            throw new APIError('UNAUTHORIZED', {
-              message: 'Unauthorized: Superadmin access required',
-            })
+          if (role !== "superadmin") {
+            throw new APIError("UNAUTHORIZED", {
+              message: "Unauthorized: Superadmin access required",
+            });
           }
         } else {
           // For existing users, check if they're a superadmin
@@ -94,15 +96,15 @@ export const auth = betterAuth({
             .select()
             .from(schema.users)
             .where(eq(schema.users.id, user.id))
-            .limit(1)
-          
-          if (!userRecord || userRecord.role !== 'superadmin') {
-            throw new APIError('UNAUTHORIZED', {
-              message: 'Unauthorized: Superadmin access required',
-            })
+            .limit(1);
+
+          if (!userRecord || userRecord.role !== "superadmin") {
+            throw new APIError("UNAUTHORIZED", {
+              message: "Unauthorized: Superadmin access required",
+            });
           }
         }
       }
     }),
   },
-})
+});

@@ -1,14 +1,14 @@
-import sharp from 'sharp'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
+import sharp from "sharp";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-const publicDir = join(__dirname, '..', 'public')
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const publicDir = join(__dirname, "..", "public");
 
 // Primary color from theme: #fab429 (Lightning)
-const primaryColor = '#fab429'
-const backgroundColor = '#ffffff'
+const primaryColor = "#fab429";
+const backgroundColor = "#ffffff";
 
 async function generateIcon(size, filename) {
   // Create a simple icon with a recipe book emoji or text
@@ -20,24 +20,24 @@ async function generateIcon(size, filename) {
       <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="${size * 0.4}" 
             font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">📖</text>
     </svg>
-  `
-  
+  `;
+
   await sharp(Buffer.from(svg))
     .resize(size, size)
     .png()
-    .toFile(join(publicDir, filename))
-  
-  console.log(`Generated ${filename} (${size}x${size})`)
+    .toFile(join(publicDir, filename));
+
+  console.log(`Generated ${filename} (${size}x${size})`);
 }
 
 async function generateIcons() {
-  console.log('Generating PWA icons...')
-  
-  await generateIcon(192, 'icon-192.png')
-  await generateIcon(512, 'icon-512.png')
-  await generateIcon(180, 'apple-touch-icon.png')
-  
-  console.log('Icons generated successfully!')
+  console.log("Generating PWA icons...");
+
+  await generateIcon(192, "icon-192.png");
+  await generateIcon(512, "icon-512.png");
+  await generateIcon(180, "apple-touch-icon.png");
+
+  console.log("Icons generated successfully!");
 }
 
-generateIcons().catch(console.error)
+generateIcons().catch(console.error);

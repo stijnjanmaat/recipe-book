@@ -1,103 +1,121 @@
-import { createFileRoute, useNavigate, Link, useParams } from '@tanstack/react-router'
-import { useTranslation } from 'react-i18next'
-import { useState, useMemo, useEffect, useRef } from 'react'
-import { ArrowLeft, Check, MoreVertical, Pencil, Trash2 } from 'lucide-react'
-import { useRecipe, useDeleteRecipe } from '~/hooks/useRecipes'
-import { useAuth } from '~/hooks/useAuth'
-import { useScreenWakeLock } from '~/hooks/useScreenWakeLock'
-import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
-import { Checkbox } from '~/components/ui/checkbox'
+import {
+  Link,
+  createFileRoute,
+  useNavigate,
+  useParams,
+} from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, Check, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { useDeleteRecipe, useRecipe } from "~/hooks/useRecipes";
+import { useAuth } from "~/hooks/useAuth";
+import { useScreenWakeLock } from "~/hooks/useScreenWakeLock";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Checkbox } from "~/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu'
-import { cn } from '~/lib/utils'
-import { interpolateIngredients } from '~/lib/utils/ingredient-interpolation'
-import { scaleIngredients } from '~/lib/utils/scale-ingredients'
-import { authMiddleware } from '~/middleware/auth'
-import { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
-import { checkClientAuth } from '~/lib/auth/route-protection'
+} from "~/components/ui/dropdown-menu";
+import { cn } from "~/lib/utils";
+import { interpolateIngredients } from "~/lib/utils/ingredient-interpolation";
+import { scaleIngredients } from "~/lib/utils/scale-ingredients";
+import { authMiddleware } from "~/middleware/auth";
+import { detectLocaleFromPath, ensureI18nInitialized } from "~/lib/i18n/config";
+import { checkClientAuth } from "~/lib/auth/route-protection";
 
-export const Route = createFileRoute('/{-$locale}/recipes/$recipeId/')({
+export const Route = createFileRoute("/{-$locale}/recipes/$recipeId/")({
   beforeLoad: async ({ location }) => {
-    const locale = detectLocaleFromPath(location.pathname)
-    await ensureI18nInitialized(locale)
-    await checkClientAuth(locale)
-    return { locale }
+    const locale = detectLocaleFromPath(location.pathname);
+    await ensureI18nInitialized(locale);
+    await checkClientAuth(locale);
+    return { locale };
   },
   server: {
     middleware: [authMiddleware],
   },
   component: RecipeDetail,
-})
+});
 
 function RecipeDetail() {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const params = Route.useParams()
-  const recipeId = params.recipeId
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const params = Route.useParams();
+  const recipeId = params.recipeId;
   // Get locale from URL params (inherited from parent route)
-  const allParams = useParams({ strict: false })
-  const currentLocale = allParams.locale || 'en'
-  
-  const { data: recipe, isLoading, isError, error } = useRecipe(Number(recipeId))
-  const deleteRecipe = useDeleteRecipe()
-  const { user } = useAuth()
-  const userId = (user as { id?: string } | undefined)?.id ?? ''
+  const allParams = useParams({ strict: false });
+  const currentLocale = allParams.locale || "en";
+
+  const {
+    data: recipe,
+    isLoading,
+    isError,
+    error,
+  } = useRecipe(Number(recipeId));
+  const deleteRecipe = useDeleteRecipe();
+  const { user } = useAuth();
+  const userId = (user as { id?: string } | undefined)?.id ?? "";
 
   // Servings multiplier state: string so input can be empty while typing
-  const originalServings = recipe?.servings || 1
-  const [servingsInput, setServingsInput] = useState<string>(() => String(originalServings))
-  const lastSyncedRecipeIdRef = useRef<string | null>(null)
+  const originalServings = recipe?.servings || 1;
+  const [servingsInput, setServingsInput] = useState<string>(() =>
+    String(originalServings)
+  );
+  const lastSyncedRecipeIdRef = useRef<string | null>(null);
 
-  const scaleServingsStorageKey = `recipe-${userId}-scale-servings-${recipeId}`
+  const scaleServingsStorageKey = `recipe-${userId}-scale-servings-${recipeId}`;
 
   // Load scale servings from localStorage when recipe or user changes; otherwise fall back to recipe.servings
   useEffect(() => {
-    if (recipeId == null || recipe?.servings == null || lastSyncedRecipeIdRef.current === recipeId) return
-    lastSyncedRecipeIdRef.current = recipeId
+    if (
+      recipeId == null ||
+      recipe?.servings == null ||
+      lastSyncedRecipeIdRef.current === recipeId
+    )
+      return;
+    lastSyncedRecipeIdRef.current = recipeId;
     if (!userId) {
-      setServingsInput(String(recipe.servings))
-      return
+      setServingsInput(String(recipe.servings));
+      return;
     }
     try {
-      const stored = localStorage.getItem(scaleServingsStorageKey)
+      const stored = localStorage.getItem(scaleServingsStorageKey);
       if (stored !== null) {
-        setServingsInput(stored)
-        return
+        setServingsInput(stored);
+        return;
       }
     } catch {
       // ignore
     }
-    setServingsInput(String(recipe.servings))
-  }, [recipeId, userId, recipe?.servings, scaleServingsStorageKey])
+    setServingsInput(String(recipe.servings));
+  }, [recipeId, userId, recipe?.servings, scaleServingsStorageKey]);
 
   // Persist scale servings to localStorage when it changes
   useEffect(() => {
-    if (!userId) return
+    if (!userId) return;
     try {
-      localStorage.setItem(scaleServingsStorageKey, servingsInput)
+      localStorage.setItem(scaleServingsStorageKey, servingsInput);
     } catch {
       // ignore
     }
-  }, [userId, scaleServingsStorageKey, servingsInput])
+  }, [userId, scaleServingsStorageKey, servingsInput]);
 
   // Effective number for scaling (empty or invalid => use original; min 1)
   const effectiveServings = (() => {
-    const n = parseFloat(servingsInput)
-    if (servingsInput === '' || isNaN(n)) return originalServings
-    return Math.max(1, n)
-  })()
+    const n = parseFloat(servingsInput);
+    if (servingsInput === "" || isNaN(n)) return originalServings;
+    return Math.max(1, n);
+  })();
 
   // Calculate multiplier ratio (desired servings / original servings)
-  const multiplierRatio = originalServings > 0 ? effectiveServings / originalServings : 1
-  
+  const multiplierRatio =
+    originalServings > 0 ? effectiveServings / originalServings : 1;
+
   // Scale ingredients when multiplier changes
   const scaledIngredients = useMemo(() => {
     if (!recipe?.ingredients || multiplierRatio === 1) {
@@ -108,7 +126,7 @@ function RecipeDetail() {
         unit: ing.unit || undefined,
         notes: ing.notes || undefined,
         order: ing.order ?? 0,
-      }))
+      }));
     }
     return scaleIngredients(
       recipe.ingredients.map((ing) => ({
@@ -120,111 +138,124 @@ function RecipeDetail() {
         order: ing.order ?? 0,
       })),
       multiplierRatio
-    )
-  }, [recipe?.ingredients, multiplierRatio])
+    );
+  }, [recipe?.ingredients, multiplierRatio]);
 
   // Storage keys scoped to logged-in user so each user has their own check state
-  const ingredientsStorageKey = `recipe-${userId}-ingredients-checked-${recipeId}`
-  const stepsStorageKey = `recipe-${userId}-steps-checked-${recipeId}`
+  const ingredientsStorageKey = `recipe-${userId}-ingredients-checked-${recipeId}`;
+  const stepsStorageKey = `recipe-${userId}-steps-checked-${recipeId}`;
 
   // Skip the first save after load so we don't overwrite localStorage with empty state on mount
-  const skipNextIngredientsSaveRef = useRef(true)
-  const skipNextStepsSaveRef = useRef(true)
+  const skipNextIngredientsSaveRef = useRef(true);
+  const skipNextStepsSaveRef = useRef(true);
 
   // Ingredient checkboxes: persisted per recipe per user in localStorage
-  const [checkedIndices, setCheckedIndices] = useState<Set<number>>(new Set())
+  const [checkedIndices, setCheckedIndices] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    if (!userId) return
-    skipNextIngredientsSaveRef.current = true
+    if (!userId) return;
+    skipNextIngredientsSaveRef.current = true;
     try {
-      const raw = localStorage.getItem(ingredientsStorageKey)
+      const raw = localStorage.getItem(ingredientsStorageKey);
       if (!raw) {
-        setCheckedIndices(new Set())
+        setCheckedIndices(new Set());
       } else {
-        const arr = JSON.parse(raw) as number[]
-        setCheckedIndices(new Set(Array.isArray(arr) ? arr : []))
+        const arr = JSON.parse(raw) as Array<number>;
+        setCheckedIndices(new Set(Array.isArray(arr) ? arr : []));
       }
     } catch {
-      setCheckedIndices(new Set())
+      setCheckedIndices(new Set());
     }
-  }, [recipeId, userId, ingredientsStorageKey])
+  }, [recipeId, userId, ingredientsStorageKey]);
 
   useEffect(() => {
-    if (!userId) return
+    if (!userId) return;
     if (skipNextIngredientsSaveRef.current) {
-      skipNextIngredientsSaveRef.current = false
-      return
+      skipNextIngredientsSaveRef.current = false;
+      return;
     }
     try {
-      localStorage.setItem(ingredientsStorageKey, JSON.stringify([...checkedIndices]))
+      localStorage.setItem(
+        ingredientsStorageKey,
+        JSON.stringify([...checkedIndices])
+      );
     } catch {
       // ignore
     }
-  }, [userId, ingredientsStorageKey, checkedIndices])
+  }, [userId, ingredientsStorageKey, checkedIndices]);
 
   const toggleIngredientChecked = (index: number) => {
     setCheckedIndices((prev) => {
-      const next = new Set(prev)
-      if (next.has(index)) next.delete(index)
-      else next.add(index)
-      return next
-    })
-  }
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  };
 
   // Step checkboxes: persisted per recipe per user in localStorage
-  const [checkedStepIndices, setCheckedStepIndices] = useState<Set<number>>(new Set())
+  const [checkedStepIndices, setCheckedStepIndices] = useState<Set<number>>(
+    new Set()
+  );
 
   useEffect(() => {
-    if (!userId) return
-    skipNextStepsSaveRef.current = true
+    if (!userId) return;
+    skipNextStepsSaveRef.current = true;
     try {
-      const raw = localStorage.getItem(stepsStorageKey)
+      const raw = localStorage.getItem(stepsStorageKey);
       if (!raw) {
-        setCheckedStepIndices(new Set())
+        setCheckedStepIndices(new Set());
       } else {
-        const arr = JSON.parse(raw) as number[]
-        setCheckedStepIndices(new Set(Array.isArray(arr) ? arr : []))
+        const arr = JSON.parse(raw) as Array<number>;
+        setCheckedStepIndices(new Set(Array.isArray(arr) ? arr : []));
       }
     } catch {
-      setCheckedStepIndices(new Set())
+      setCheckedStepIndices(new Set());
     }
-  }, [recipeId, userId, stepsStorageKey])
+  }, [recipeId, userId, stepsStorageKey]);
 
   useEffect(() => {
-    if (!userId) return
+    if (!userId) return;
     if (skipNextStepsSaveRef.current) {
-      skipNextStepsSaveRef.current = false
-      return
+      skipNextStepsSaveRef.current = false;
+      return;
     }
     try {
-      localStorage.setItem(stepsStorageKey, JSON.stringify([...checkedStepIndices]))
+      localStorage.setItem(
+        stepsStorageKey,
+        JSON.stringify([...checkedStepIndices])
+      );
     } catch {
       // ignore
     }
-  }, [userId, stepsStorageKey, checkedStepIndices])
+  }, [userId, stepsStorageKey, checkedStepIndices]);
 
   const toggleStepChecked = (index: number) => {
     setCheckedStepIndices((prev) => {
-      const next = new Set(prev)
-      if (next.has(index)) next.delete(index)
-      else next.add(index)
-      return next
-    })
-  }
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  };
 
   // Keep screen on while viewing recipe (cooking)
-  useScreenWakeLock(true)
+  useScreenWakeLock(true);
 
   const handleDelete = () => {
-    if (window.confirm(t('recipes.deleteConfirm', { title: recipe?.title }))) {
+    if (window.confirm(t("recipes.deleteConfirm", { title: recipe?.title }))) {
       deleteRecipe.mutate(Number(recipeId), {
         onSuccess: () => {
-          navigate({ to: '/{-$locale}/recipes', params: { locale: currentLocale === 'en' ? undefined : currentLocale } })
+          navigate({
+            to: "/{-$locale}/recipes",
+            params: {
+              locale: currentLocale === "en" ? undefined : currentLocale,
+            },
+          });
         },
-      })
+      });
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -237,7 +268,7 @@ function RecipeDetail() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (isError || !recipe) {
@@ -245,24 +276,26 @@ function RecipeDetail() {
       <div className="px-4 py-6 sm:px-0">
         <div className="max-w-4xl mx-auto">
           <Alert variant="destructive">
-            <AlertTitle>{t('recipe.error')}</AlertTitle>
+            <AlertTitle>{t("recipe.error")}</AlertTitle>
             <AlertDescription>
-              {error instanceof Error ? error.message : t('recipe.notFound')}
+              {error instanceof Error ? error.message : t("recipe.notFound")}
             </AlertDescription>
           </Alert>
           <div className="mt-4">
             <Button asChild variant="ghost">
               <Link
                 to="/{-$locale}/recipes"
-                params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
+                params={{
+                  locale: currentLocale === "en" ? undefined : currentLocale,
+                }}
               >
-                ← {t('recipe.backToRecipes')}
+                ← {t("recipe.backToRecipes")}
               </Link>
             </Button>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -272,27 +305,41 @@ function RecipeDetail() {
           <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2">
             <Link
               to="/{-$locale}/recipes"
-              params={{ locale: currentLocale === 'en' ? undefined : currentLocale }}
+              params={{
+                locale: currentLocale === "en" ? undefined : currentLocale,
+              }}
             >
               <ArrowLeft className="size-4 mr-1.5" />
-              {t('recipe.backToRecipes')}
+              {t("recipe.backToRecipes")}
             </Link>
           </Button>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-foreground mb-2 sm:text-4xl wrap-break-word">{recipe.title}</h1>
+              <h1 className="text-2xl font-bold text-foreground mb-2 sm:text-4xl wrap-break-word">
+                {recipe.title}
+              </h1>
               {recipe.description && (
-                <p className="text-base text-muted-foreground mb-4 sm:text-lg line-clamp-3 sm:line-clamp-none">{recipe.description}</p>
+                <p className="text-base text-muted-foreground mb-4 sm:text-lg line-clamp-3 sm:line-clamp-none">
+                  {recipe.description}
+                </p>
               )}
             </div>
             <div className="flex w-full sm:w-auto items-center justify-end gap-2 shrink-0">
-              <Button asChild variant="outline" size="sm" className="sm:flex hidden">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="sm:flex hidden"
+              >
                 <Link
                   to="/{-$locale}/recipes/$recipeId/edit"
-                  params={{ locale: currentLocale === 'en' ? undefined : currentLocale, recipeId }}
+                  params={{
+                    locale: currentLocale === "en" ? undefined : currentLocale,
+                    recipeId,
+                  }}
                 >
                   <Pencil className="size-4 sm:mr-1.5" />
-                  {t('common.edit')}
+                  {t("common.edit")}
                 </Link>
               </Button>
               <Button
@@ -303,22 +350,37 @@ function RecipeDetail() {
                 className="sm:flex hidden"
               >
                 <Trash2 className="size-4 sm:mr-1.5" />
-                {deleteRecipe.isPending ? t('recipes.deleting') : t('common.delete')}
+                {deleteRecipe.isPending
+                  ? t("recipes.deleting")
+                  : t("common.delete")}
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon-sm" className="sm:hidden size-7 p-1 text-muted-foreground hover:text-foreground -mr-1" aria-label={t('recipes.table.actions')}>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="sm:hidden size-7 p-1 text-muted-foreground hover:text-foreground -mr-1"
+                    aria-label={t("recipes.table.actions")}
+                  >
                     <MoreVertical className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={2} className="min-w-36 w-auto p-0.5">
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={2}
+                  className="min-w-36 w-auto p-0.5"
+                >
                   <DropdownMenuItem asChild>
                     <Link
                       to="/{-$locale}/recipes/$recipeId/edit"
-                      params={{ locale: currentLocale === 'en' ? undefined : currentLocale, recipeId }}
+                      params={{
+                        locale:
+                          currentLocale === "en" ? undefined : currentLocale,
+                        recipeId,
+                      }}
                     >
                       <Pencil className="size-4 mr-2" />
-                      {t('common.edit')}
+                      {t("common.edit")}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -327,7 +389,9 @@ function RecipeDetail() {
                     className="text-destructive focus:text-destructive"
                   >
                     <Trash2 className="size-4 mr-2" />
-                    {deleteRecipe.isPending ? t('recipes.deleting') : t('common.delete')}
+                    {deleteRecipe.isPending
+                      ? t("recipes.deleting")
+                      : t("common.delete")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -350,11 +414,16 @@ function RecipeDetail() {
             {recipe.ingredients && recipe.ingredients.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-foreground">{t('recipe.ingredients')}</h2>
+                  <h2 className="text-2xl font-bold text-foreground">
+                    {t("recipe.ingredients")}
+                  </h2>
                   {recipe.servings && recipe.servingsRelevant !== false && (
                     <div className="flex items-center gap-2">
-                      <Label htmlFor="servings-multiplier" className="text-sm text-muted-foreground">
-                        {t('recipe.scaleTo')}:
+                      <Label
+                        htmlFor="servings-multiplier"
+                        className="text-sm text-muted-foreground"
+                      >
+                        {t("recipe.scaleTo")}:
                       </Label>
                       <Input
                         id="servings-multiplier"
@@ -371,7 +440,7 @@ function RecipeDetail() {
                 </div>
                 <ul className="space-y-2">
                   {scaledIngredients.map((ingredient, index) => {
-                    const isChecked = checkedIndices.has(index)
+                    const isChecked = checkedIndices.has(index);
                     return (
                       <li key={index} className="flex items-start gap-3">
                         <Checkbox
@@ -384,8 +453,9 @@ function RecipeDetail() {
                         <label
                           htmlFor={`ingredient-${recipeId}-${index}`}
                           className={cn(
-                            'w-fit cursor-pointer select-none text-foreground transition-colors',
-                            isChecked && 'text-muted-foreground line-through decoration-2 decoration-muted-foreground'
+                            "w-fit cursor-pointer select-none text-foreground transition-colors",
+                            isChecked &&
+                              "text-muted-foreground line-through decoration-2 decoration-muted-foreground"
                           )}
                         >
                           {ingredient.amount && `${ingredient.amount} `}
@@ -394,7 +464,7 @@ function RecipeDetail() {
                           {ingredient.notes && ` (${ingredient.notes})`}
                         </label>
                       </li>
-                    )
+                    );
                   })}
                 </ul>
               </div>
@@ -402,37 +472,45 @@ function RecipeDetail() {
 
             {recipe.instructions && recipe.instructions.length > 0 && (
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">{t('recipe.instructions')}</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-4">
+                  {t("recipe.instructions")}
+                </h2>
                 <ol className="space-y-4">
                   {recipe.instructions.map((instruction, index) => {
-                    const isStepChecked = checkedStepIndices.has(index)
+                    const isStepChecked = checkedStepIndices.has(index);
                     return (
                       <li key={index} className="flex gap-3 items-start">
                         <button
                           type="button"
                           onClick={() => toggleStepChecked(index)}
-                          aria-label={isStepChecked ? `Step ${instruction.step} completed` : `Mark step ${instruction.step} complete`}
+                          aria-label={
+                            isStepChecked
+                              ? `Step ${instruction.step} completed`
+                              : `Mark step ${instruction.step} complete`
+                          }
                           aria-pressed={isStepChecked}
                           className="shrink-0 w-10 h-10 perspective-[280px] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full"
                         >
                           <div
                             className="relative w-full h-full transition-transform duration-300"
                             style={{
-                              transform: isStepChecked ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                              transformStyle: 'preserve-3d',
+                              transform: isStepChecked
+                                ? "rotateY(180deg)"
+                                : "rotateY(0deg)",
+                              transformStyle: "preserve-3d",
                             }}
                           >
                             <span
                               className="absolute inset-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg"
-                              style={{ backfaceVisibility: 'hidden' }}
+                              style={{ backfaceVisibility: "hidden" }}
                             >
                               {instruction.step}
                             </span>
                             <span
                               className="absolute inset-0 rounded-full bg-green-600 text-white flex items-center justify-center"
                               style={{
-                                backfaceVisibility: 'hidden',
-                                transform: 'rotateY(180deg)',
+                                backfaceVisibility: "hidden",
+                                transform: "rotateY(180deg)",
                               }}
                             >
                               <Check className="size-6" strokeWidth={2.5} />
@@ -443,11 +521,18 @@ function RecipeDetail() {
                           type="button"
                           onClick={() => toggleStepChecked(index)}
                           className={cn(
-                            'flex-1 text-left cursor-pointer select-none transition-colors',
-                            isStepChecked && 'text-muted-foreground line-through decoration-2 decoration-muted-foreground'
+                            "flex-1 text-left cursor-pointer select-none transition-colors",
+                            isStepChecked &&
+                              "text-muted-foreground line-through decoration-2 decoration-muted-foreground"
                           )}
                         >
-                          <p className={cn(isStepChecked ? 'text-muted-foreground' : 'text-foreground')}>
+                          <p
+                            className={cn(
+                              isStepChecked
+                                ? "text-muted-foreground"
+                                : "text-foreground"
+                            )}
+                          >
                             {interpolateIngredients(
                               instruction.instruction,
                               scaledIngredients
@@ -455,7 +540,7 @@ function RecipeDetail() {
                           </p>
                         </button>
                       </li>
-                    )
+                    );
                   })}
                 </ol>
               </div>
@@ -463,33 +548,50 @@ function RecipeDetail() {
           </div>
 
           <div className="lg:col-span-1 space-y-4">
-            {(recipe.prepTime || recipe.cookTime || recipe.totalTime || (recipe.servings && recipe.servingsRelevant !== false)) && (
+            {(recipe.prepTime ||
+              recipe.cookTime ||
+              recipe.totalTime ||
+              (recipe.servings && recipe.servingsRelevant !== false)) && (
               <Card>
                 <CardHeader>
-                  <CardTitle>{t('recipe.metadata')}</CardTitle>
+                  <CardTitle>{t("recipe.metadata")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {recipe.prepTime && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t('recipe.prepTime')}:</span>
-                      <span className="font-medium">{recipe.prepTime} {t('common.minutes')}</span>
+                      <span className="text-muted-foreground">
+                        {t("recipe.prepTime")}:
+                      </span>
+                      <span className="font-medium">
+                        {recipe.prepTime} {t("common.minutes")}
+                      </span>
                     </div>
                   )}
                   {recipe.cookTime && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t('recipe.cookTime')}:</span>
-                      <span className="font-medium">{recipe.cookTime} {t('common.minutes')}</span>
+                      <span className="text-muted-foreground">
+                        {t("recipe.cookTime")}:
+                      </span>
+                      <span className="font-medium">
+                        {recipe.cookTime} {t("common.minutes")}
+                      </span>
                     </div>
                   )}
                   {recipe.totalTime && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t('recipe.totalTime')}:</span>
-                      <span className="font-medium">{recipe.totalTime} {t('common.minutes')}</span>
+                      <span className="text-muted-foreground">
+                        {t("recipe.totalTime")}:
+                      </span>
+                      <span className="font-medium">
+                        {recipe.totalTime} {t("common.minutes")}
+                      </span>
                     </div>
                   )}
                   {recipe.servings && recipe.servingsRelevant !== false && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t('recipe.servings')}:</span>
+                      <span className="text-muted-foreground">
+                        {t("recipe.servings")}:
+                      </span>
                       <span className="font-medium">{recipe.servings}</span>
                     </div>
                   )}
@@ -499,7 +601,7 @@ function RecipeDetail() {
             {recipe.tags && recipe.tags.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>{t('recipe.tags')}</CardTitle>
+                  <CardTitle>{t("recipe.tags")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
@@ -518,10 +620,10 @@ function RecipeDetail() {
             {recipe.source && (
               <Card>
                 <CardHeader>
-                  <CardTitle>{t('recipe.source')}</CardTitle>
+                  <CardTitle>{t("recipe.source")}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {recipe.source.startsWith('http') ? (
+                  {recipe.source.startsWith("http") ? (
                     <a
                       href={recipe.source}
                       target="_blank"
@@ -540,5 +642,5 @@ function RecipeDetail() {
         </div>
       </div>
     </div>
-  )
+  );
 }
