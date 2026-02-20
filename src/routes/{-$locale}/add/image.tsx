@@ -5,6 +5,14 @@ import { useDropzone } from 'react-dropzone'
 import { useExtractRecipeFromImage } from '~/hooks/useRecipes'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
 import { Card } from '~/components/ui/card'
+import { Label } from '~/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 import { authMiddleware } from '~/middleware/auth'
 import { detectLocaleFromPath, ensureI18nInitialized } from '~/lib/i18n/config'
 import { checkClientAuth } from '~/lib/auth/route-protection'
@@ -29,6 +37,10 @@ function AddRecipeFromImage() {
   const allParams = useParams({ strict: false })
   const currentLocale = allParams.locale || 'en'
   const [preview, setPreview] = useState<string | null>(null)
+  const [extraOptions, setExtraOptions] = useState({
+    outputLanguage: 'en',
+    measurementSystem: 'metric'
+  })
   const extractRecipe = useExtractRecipeFromImage()
 
   const onDrop = useCallback(
@@ -43,7 +55,11 @@ function AddRecipeFromImage() {
         reader.readAsDataURL(file)
 
         // Extract recipe
-        extractRecipe.mutate(file, {
+        extractRecipe.mutate({
+          imageFile: file,
+          outputLanguage: extraOptions.outputLanguage,
+          measurementSystem: extraOptions.measurementSystem,
+        }, {
           onSuccess: (recipe) => {
             if (!recipe) return
             // Navigate to recipe detail page with locale
@@ -58,7 +74,7 @@ function AddRecipeFromImage() {
         })
       }
     },
-    [extractRecipe, navigate, currentLocale]
+    [extractRecipe, navigate, currentLocale, extraOptions]
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -97,6 +113,48 @@ function AddRecipeFromImage() {
             </AlertDescription>
           </Alert>
         )}
+
+        <div className="mb-4">
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="outputLanguage">
+                {t('addRecipe.outputLanguage')}
+              </Label>
+              <Select
+                value={extraOptions.outputLanguage}
+                onValueChange={(value: string) => setExtraOptions({ ...extraOptions, outputLanguage: value })}
+                disabled={extractRecipe.isPending}
+              >
+                <SelectTrigger id="outputLanguage">
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">{t('common.english')}</SelectItem>
+                  <SelectItem value="nl">{t('common.dutch')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="measurementSystem">
+                {t('addRecipe.measurementSystem')}
+              </Label>
+              <Select
+                value={extraOptions.measurementSystem}
+                onValueChange={(value: string) => setExtraOptions({ ...extraOptions, measurementSystem: value })}
+                disabled={extractRecipe.isPending}
+              >
+                <SelectTrigger id="measurementSystem">
+                  <SelectValue placeholder="Select measurement system" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="metric">{t('common.metric')}</SelectItem>
+                  <SelectItem value="imperial">{t('common.imperial')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
 
         {extractRecipe.isPending ? (
           <Card className="border-2 border-dashed p-12 text-center">

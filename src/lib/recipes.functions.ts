@@ -86,7 +86,13 @@ export const extractRecipeFromImageFile = createServerFn({ method: 'POST' })
     if (!imageFile.type.startsWith('image/')) {
       throw new Error('File must be an image')
     }
-    return { imageFile }
+    const outputLanguage = data.get('outputLanguage') as string | null
+    const measurementSystem = data.get('measurementSystem') as string | null
+    return { 
+      imageFile,
+      outputLanguage: outputLanguage || 'en',
+      measurementSystem: measurementSystem || 'metric',
+    }
   })
   .handler(async ({ data }) => {
     const [recipeServer, { extractRecipeFromImage }, { uploadImage }] = await Promise.all([
@@ -99,7 +105,7 @@ export const extractRecipeFromImageFile = createServerFn({ method: 'POST' })
     const imageBlobUrl = await uploadImage(data.imageFile, `recipe-${Date.now()}-${data.imageFile.name}`)
 
     // Extract recipe from image using LLM
-    const extractedRecipe = await extractRecipeFromImage(imageBlobUrl)
+    const extractedRecipe = await extractRecipeFromImage(imageBlobUrl, data.outputLanguage, data.measurementSystem)
 
     // Store recipe in database
     const completeRecipe = await recipeServer.createRecipe({
@@ -118,6 +124,8 @@ export const extractRecipeFromUrlString = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       url: z.string().url(),
+      outputLanguage: z.string(),
+      measurementSystem: z.string(),
     })
   )
   .handler(async ({ data }) => {
@@ -128,7 +136,7 @@ export const extractRecipeFromUrlString = createServerFn({ method: 'POST' })
     ])
     
     // Extract recipe from URL using OpenAI's web_search tool
-    const extractedRecipe = await extractRecipeFromUrl(data.url)
+    const extractedRecipe = await extractRecipeFromUrl(data.url, data.outputLanguage, data.measurementSystem)
 
     // Try to upload any image from the recipe if available
     let imageBlobUrl: string | undefined
