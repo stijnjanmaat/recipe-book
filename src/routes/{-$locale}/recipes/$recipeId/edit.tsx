@@ -155,6 +155,13 @@ function EditRecipe() {
     });
   };
 
+  const changeCuisine = (value: string) => {
+    setFormData((prev) => {
+      if (!prev) return null;
+      return { ...prev, cuisine: value };
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData) return;
@@ -317,6 +324,16 @@ function EditRecipe() {
                 <p className="text-xs text-muted-foreground">
                   {t("editRecipe.tagsHint")}
                 </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cuisine">{t("editRecipe.cuisineLabel")}</Label>
+                <Input
+                  type="text"
+                  id="cuisine"
+                  value={formData.cuisine || ""}
+                  onChange={(e) => changeCuisine(e.target.value)}
+                />
               </div>
 
               <div className="space-y-2">
