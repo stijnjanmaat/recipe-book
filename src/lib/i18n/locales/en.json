@@ -63,6 +63,22 @@
       "previous": "Previous",
       "next": "Next",
       "last": "Last"
+    },
+    "filters": {
+      "tags": "Tags",
+      "cuisine": "Cuisine",
+      "cookTime": "Cook Time",
+      "allTags": "All Tags",
+      "allCuisines": "All Cuisines",
+      "allCookTimes": "All Cook Times",
+      "under15": "Under 15 min",
+      "15to30": "15-30 min",
+      "30to60": "30-60 min",
+      "over60": "Over 60 min",
+      "clearFilters": "Clear filters",
+      "tagsSelected": "tags",
+      "noTags": "No tags available",
+      "activeFilters": "Active filters"
     }
   },
   "recipe": {
