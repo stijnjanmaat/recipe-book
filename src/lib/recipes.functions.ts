@@ -11,17 +11,16 @@ import { CreateRecipeSchema, UpdateRecipeSchema } from "~/types/recipe";
 // Server-only code is imported inside handlers, not at top level
 // This ensures it's not bundled for the client
 
-// Get all recipes
-export const getRecipes = createServerFn({ method: "GET" })
-  .middleware([authMiddleware])
-  .handler(async () => {
+// Get all recipes (public)
+export const getRecipes = createServerFn({ method: "GET" }).handler(
+  async () => {
     const recipeServer = await import("./recipes.server");
     return recipeServer.getAllRecipes();
-  });
+  }
+);
 
-// Get single recipe
+// Get single recipe (public)
 export const getRecipe = createServerFn({ method: "GET" })
-  .middleware([authMiddleware])
   .inputValidator(z.object({ id: z.number() }))
   .handler(async ({ data }) => {
     const recipeServer = await import("./recipes.server");

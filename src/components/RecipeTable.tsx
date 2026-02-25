@@ -85,7 +85,11 @@ const COOK_TIME_RANGES = [
   { value: "over60", min: 61, max: Infinity },
 ] as const;
 
-export function RecipeTable() {
+type RecipeTableProps = {
+  canEdit?: boolean;
+};
+
+export function RecipeTable({ canEdit = false }: RecipeTableProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const routerState = useRouterState();
@@ -316,6 +320,20 @@ export function RecipeTable() {
               <span className="hidden md:inline">{t("recipes.view")}</span>
             </Link>
           </Button>
+          {canEdit && (
+            <Button asChild variant="ghost" size="sm">
+              <Link
+                to="/{-$locale}/recipes/$recipeId/edit"
+                params={{
+                  recipeId: row.original.id.toString(),
+                  locale: currentLocale === "en" ? undefined : currentLocale,
+                }}
+              >
+                <Pencil className="size-4 md:mr-1.5" />
+                <span className="hidden md:inline">{t("common.edit")}</span>
+              </Link>
+            </Button>
+          )}
         </div>
       ),
       enableSorting: false,
@@ -747,22 +765,24 @@ export function RecipeTable() {
                           {t("recipes.view")}
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/{-$locale}/recipes/$recipeId/edit"
-                          params={{
-                            recipeId: r.id.toString(),
-                            locale:
-                              currentLocale === "en"
-                                ? undefined
-                                : currentLocale,
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Pencil className="size-4 mr-2" />
-                          {t("common.edit")}
-                        </Link>
-                      </DropdownMenuItem>
+                      {canEdit && (
+                        <DropdownMenuItem asChild>
+                          <Link
+                            to="/{-$locale}/recipes/$recipeId/edit"
+                            params={{
+                              recipeId: r.id.toString(),
+                              locale:
+                                currentLocale === "en"
+                                  ? undefined
+                                  : currentLocale,
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Pencil className="size-4 mr-2" />
+                            {t("common.edit")}
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

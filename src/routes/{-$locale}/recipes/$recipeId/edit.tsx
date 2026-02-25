@@ -1,4 +1,5 @@
 import {
+  Link,
   createFileRoute,
   useNavigate,
   useParams,
@@ -6,6 +7,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { z } from "zod";
+import { ArrowLeft } from "lucide-react";
 import { useRecipe, useUpdateRecipe } from "~/hooks/useRecipes";
 import { UpdateRecipeSchema } from "~/types/recipe";
 import { Button } from "~/components/ui/button";
@@ -245,22 +247,19 @@ function EditRecipe() {
     <div className="px-4 py-6 sm:px-0">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <Button
-            variant="ghost"
-            onClick={() =>
-              navigate({
-                to: "/{-$locale}/recipes/$recipeId",
-                params: {
-                  locale: currentLocale === "en" ? undefined : currentLocale,
-                  recipeId,
-                },
-              })
-            }
-            className="mb-4"
-          >
-            ← {t("editRecipe.backToRecipe")}
+          <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2">
+            <Link
+              to="/{-$locale}/recipes/$recipeId"
+              params={{
+                locale: currentLocale === "en" ? undefined : currentLocale,
+                recipeId,
+              }}
+            >
+              <ArrowLeft className="size-4 mr-1.5" />
+              {t("editRecipe.backToRecipe")}
+            </Link>
           </Button>
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-2xl font-bold text-foreground mb-2 sm:text-4xl wrap-break-word">
             {t("editRecipe.title")}
           </h1>
         </div>

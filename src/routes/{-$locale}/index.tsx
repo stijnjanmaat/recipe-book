@@ -1,4 +1,4 @@
-import { Link, createFileRoute, useParams } from "@tanstack/react-router";
+import { Link, createFileRoute, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { detectLocaleFromPath, ensureI18nInitialized } from "~/lib/i18n/config";
 import { Button } from "~/components/ui/button";
@@ -31,9 +31,10 @@ export const Route = createFileRoute("/{-$locale}/")({
 
 export function IndexComponent() {
   const { t } = useTranslation();
-  const allParams = useParams({ strict: false });
-  const currentLocale = allParams.locale || "en";
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const currentLocale = detectLocaleFromPath(pathname);
   const { isAuthenticated, isSuperadmin } = useAuth();
+  const localeParam = currentLocale === "en" ? undefined : currentLocale;
 
   return (
     <div className="px-4 py-12 sm:px-0">
@@ -102,22 +103,13 @@ export function IndexComponent() {
                 <Button asChild size="lg">
                   <Link
                     to="/{-$locale}/recipes"
-                    params={{
-                      locale:
-                        currentLocale === "en" ? undefined : currentLocale,
-                    }}
+                    params={{ locale: localeParam }}
                   >
                     {t("homepage.cta.viewRecipes")}
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <Link
-                    to="/{-$locale}/add"
-                    params={{
-                      locale:
-                        currentLocale === "en" ? undefined : currentLocale,
-                    }}
-                  >
+                  <Link to="/{-$locale}/add" params={{ locale: localeParam }}>
                     {t("homepage.cta.addRecipe")}
                   </Link>
                 </Button>
@@ -129,12 +121,7 @@ export function IndexComponent() {
                 {t("homepage.cta.loggedOut")}
               </p>
               <Button asChild size="lg">
-                <Link
-                  to="/{-$locale}/login"
-                  params={{
-                    locale: currentLocale === "en" ? undefined : currentLocale,
-                  }}
-                >
+                <Link to="/{-$locale}/login" params={{ locale: localeParam }}>
                   {t("homepage.cta.signIn")}
                 </Link>
               </Button>
