@@ -4,39 +4,28 @@ import { Plus } from "lucide-react";
 import { detectLocaleFromPath, ensureI18nInitialized } from "~/lib/i18n/config";
 import { RecipeTable } from "~/components/RecipeTable";
 import { Button } from "~/components/ui/button";
-import { authMiddleware } from "~/middleware/auth";
-import { checkClientAuth } from "~/lib/auth/route-protection";
+import { useAuth } from "~/hooks/useAuth";
 
 export const Route = createFileRoute("/{-$locale}/recipes/")({
   beforeLoad: async ({ location }) => {
     const locale = detectLocaleFromPath(location.pathname);
-
-    // CRITICAL: Set i18n locale synchronously before any components render
-    // This ensures SSR and client render with the same language
     await ensureI18nInitialized(locale);
-
-    // Client-side auth check (only runs on client)
-    await checkClientAuth(locale);
-
     return { locale };
   },
   loader: async ({ location }) => {
     const locale = detectLocaleFromPath(location.pathname);
     await ensureI18nInitialized(locale);
-
     return { locale };
   },
   component: AllRecipesComponent,
-  server: {
-    middleware: [authMiddleware],
-  },
 });
 
 function AllRecipesComponent() {
   const { t } = useTranslation();
-  // Get locale from URL params
+  const { isAuthenticated, isSuperadmin } = useAuth();
   const allParams = useParams({ strict: false });
   const currentLocale = allParams.locale || "en";
+  const canEdit = isAuthenticated && isSuperadmin;
 
   return (
     <div className="px-4 py-4 sm:py-6 sm:px-0">
@@ -49,19 +38,21 @@ function AllRecipesComponent() {
             {t("recipes.description")}
           </p>
         </div>
-        <Button asChild size="sm" className="w-full sm:w-auto shrink-0">
-          <Link
-            to="/{-$locale}/add"
-            params={{
-              locale: currentLocale === "en" ? undefined : currentLocale,
-            }}
-          >
-            <Plus className="size-4 sm:mr-1.5" />
-            {t("nav.addRecipe")}
-          </Link>
-        </Button>
+        {canEdit && (
+          <Button asChild size="sm" className="w-full sm:w-auto shrink-0">
+            <Link
+              to="/{-$locale}/add"
+              params={{
+                locale: currentLocale === "en" ? undefined : currentLocale,
+              }}
+            >
+              <Plus className="size-4 sm:mr-1.5" />
+              {t("nav.addRecipe")}
+            </Link>
+          </Button>
+        )}
       </div>
-      <RecipeTable />
+      <RecipeTable canEdit={canEdit} />
     </div>
   );
 }

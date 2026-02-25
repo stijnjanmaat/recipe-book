@@ -236,16 +236,16 @@ function NavWithSession({ locale }: { locale: string }) {
                 {t("nav.appName")}
               </Link>
             </div>
-            {isAuthenticated && isSuperadmin && (
-              <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-2">
-                <Button asChild variant="ghost">
-                  <Link
-                    to="/{-$locale}/recipes"
-                    params={{ locale: locale === "en" ? undefined : locale }}
-                  >
-                    {t("nav.recipes")}
-                  </Link>
-                </Button>
+            <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-2">
+              <Button asChild variant="ghost">
+                <Link
+                  to="/{-$locale}/recipes"
+                  params={{ locale: locale === "en" ? undefined : locale }}
+                >
+                  {t("nav.recipes")}
+                </Link>
+              </Button>
+              {isAuthenticated && isSuperadmin && (
                 <Button asChild variant="ghost">
                   <Link
                     to="/{-$locale}/add"
@@ -254,8 +254,8 @@ function NavWithSession({ locale }: { locale: string }) {
                     {t("nav.addRecipe")}
                   </Link>
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {isAuthenticated ? (

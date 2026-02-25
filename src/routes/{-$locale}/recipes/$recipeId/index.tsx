@@ -25,19 +25,13 @@ import {
 import { cn } from "~/lib/utils";
 import { interpolateIngredients } from "~/lib/utils/ingredient-interpolation";
 import { scaleIngredients } from "~/lib/utils/scale-ingredients";
-import { authMiddleware } from "~/middleware/auth";
 import { detectLocaleFromPath, ensureI18nInitialized } from "~/lib/i18n/config";
-import { checkClientAuth } from "~/lib/auth/route-protection";
 
 export const Route = createFileRoute("/{-$locale}/recipes/$recipeId/")({
   beforeLoad: async ({ location }) => {
     const locale = detectLocaleFromPath(location.pathname);
     await ensureI18nInitialized(locale);
-    await checkClientAuth(locale);
     return { locale };
-  },
-  server: {
-    middleware: [authMiddleware],
   },
   component: RecipeDetail,
 });
@@ -58,8 +52,9 @@ function RecipeDetail() {
     error,
   } = useRecipe(Number(recipeId));
   const deleteRecipe = useDeleteRecipe();
-  const { user } = useAuth();
+  const { user, isAuthenticated, isSuperadmin } = useAuth();
   const userId = (user as { id?: string } | undefined)?.id ?? "";
+  const canEdit = isAuthenticated && isSuperadmin;
 
   // Servings multiplier state: string so input can be empty while typing
   const originalServings = recipe?.servings || 1;
@@ -324,78 +319,81 @@ function RecipeDetail() {
                 </p>
               )}
             </div>
-            <div className="flex w-full sm:w-auto items-center justify-end gap-2 shrink-0">
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="sm:flex hidden"
-              >
-                <Link
-                  to="/{-$locale}/recipes/$recipeId/edit"
-                  params={{
-                    locale: currentLocale === "en" ? undefined : currentLocale,
-                    recipeId,
-                  }}
+            {canEdit && (
+              <div className="flex w-full sm:w-auto items-center justify-end gap-2 shrink-0">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="sm:flex hidden"
                 >
-                  <Pencil className="size-4 sm:mr-1.5" />
-                  {t("common.edit")}
-                </Link>
-              </Button>
-              <Button
-                onClick={handleDelete}
-                disabled={deleteRecipe.isPending}
-                variant="destructive"
-                size="sm"
-                className="sm:flex hidden"
-              >
-                <Trash2 className="size-4 sm:mr-1.5" />
-                {deleteRecipe.isPending
-                  ? t("recipes.deleting")
-                  : t("common.delete")}
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="sm:hidden size-7 p-1 text-muted-foreground hover:text-foreground -mr-1"
-                    aria-label={t("recipes.table.actions")}
+                  <Link
+                    to="/{-$locale}/recipes/$recipeId/edit"
+                    params={{
+                      locale:
+                        currentLocale === "en" ? undefined : currentLocale,
+                      recipeId,
+                    }}
                   >
-                    <MoreVertical className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  sideOffset={2}
-                  className="min-w-36 w-auto p-0.5"
+                    <Pencil className="size-4 sm:mr-1.5" />
+                    {t("common.edit")}
+                  </Link>
+                </Button>
+                <Button
+                  onClick={handleDelete}
+                  disabled={deleteRecipe.isPending}
+                  variant="destructive"
+                  size="sm"
+                  className="sm:flex hidden"
                 >
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to="/{-$locale}/recipes/$recipeId/edit"
-                      params={{
-                        locale:
-                          currentLocale === "en" ? undefined : currentLocale,
-                        recipeId,
-                      }}
+                  <Trash2 className="size-4 sm:mr-1.5" />
+                  {deleteRecipe.isPending
+                    ? t("recipes.deleting")
+                    : t("common.delete")}
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="sm:hidden size-7 p-1 text-muted-foreground hover:text-foreground -mr-1"
+                      aria-label={t("recipes.table.actions")}
                     >
-                      <Pencil className="size-4 mr-2" />
-                      {t("common.edit")}
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={handleDelete}
-                    disabled={deleteRecipe.isPending}
-                    className="text-destructive focus:text-destructive"
+                      <MoreVertical className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    sideOffset={2}
+                    className="min-w-36 w-auto p-0.5"
                   >
-                    <Trash2 className="size-4 mr-2" />
-                    {deleteRecipe.isPending
-                      ? t("recipes.deleting")
-                      : t("common.delete")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/{-$locale}/recipes/$recipeId/edit"
+                        params={{
+                          locale:
+                            currentLocale === "en" ? undefined : currentLocale,
+                          recipeId,
+                        }}
+                      >
+                        <Pencil className="size-4 mr-2" />
+                        {t("common.edit")}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleDelete}
+                      disabled={deleteRecipe.isPending}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="size-4 mr-2" />
+                      {deleteRecipe.isPending
+                        ? t("recipes.deleting")
+                        : t("common.delete")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
           </div>
         </div>
 
