@@ -147,7 +147,7 @@ export function RecipeTable() {
       if (!term) return true;
       if (recipe.title?.toLowerCase().includes(term)) return true;
       if (recipe.description?.toLowerCase().includes(term)) return true;
-      if (recipe.tags?.some((t) => t?.toLowerCase().includes(term)))
+      if (recipe.tags?.some((tagItem) => tagItem?.toLowerCase().includes(term)))
         return true;
       if (
         recipe.ingredients?.some((ing) =>
@@ -514,7 +514,9 @@ export function RecipeTable() {
                       if (checked) {
                         setTagFilter([...tagFilter, tag]);
                       } else {
-                        setTagFilter(tagFilter.filter((t) => t !== tag));
+                        setTagFilter(
+                          tagFilter.filter((tagItem) => tagItem !== tag)
+                        );
                       }
                     }}
                     onSelect={(e) => e.preventDefault()}
@@ -610,7 +612,7 @@ export function RecipeTable() {
                 <button
                   type="button"
                   onClick={() =>
-                    setTagFilter(tagFilter.filter((t) => t !== tag))
+                    setTagFilter(tagFilter.filter((tagItem) => tagItem !== tag))
                   }
                   className="ml-0.5 hover:bg-primary/20 rounded-sm p-0.5"
                 >
